@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import SongCard from "../components/SongCard.jsx";
 import SongTile from "../components/SongTile.jsx";
 import { searchSongs } from "../services/musicService.js";
@@ -14,39 +15,115 @@ const sectionConfig = [
   { title: "Chillwave", query: "chill" }
 ];
 
+const HOME_CACHE_KEY = "mw-home-cache-v1";
+const HOME_CACHE_TTL_MS = 10 * 60 * 1000;
+
 const Home = () => {
+  const navigate = useNavigate();
+  const hasLoadedRef = React.useRef(false);
   const [sections, setSections] = React.useState(() =>
-    sectionConfig.map((section) => ({ ...section, songs: [], loading: true }))
+    sectionConfig.map((section) => ({
+      ...section,
+      songs: [],
+      page: 1,
+      loading: true,
+      loadingMore: false
+    }))
   );
 
-  React.useEffect(() => {
-    let cancelled = false;
+  const writeCache = (nextSections) => {
+    try {
+      const payload = {
+        updatedAt: Date.now(),
+        sections: nextSections.map((section) => ({
+          title: section.title,
+          query: section.query,
+          songs: section.songs,
+          page: section.page
+        }))
+      };
+      localStorage.setItem(HOME_CACHE_KEY, JSON.stringify(payload));
+    } catch {
+      undefined;
+    }
+  };
 
-    const load = async () => {
-      const results = await Promise.all(
-        sectionConfig.map(async (section) => {
-          try {
-            const data = await searchSongs(section.query);
-            const list = Array.isArray(data) ? data : data?.results || [];
-            return { ...section, songs: list.map(normalizeSong), loading: false };
-          } catch {
-            return { ...section, songs: [], loading: false, error: true };
-          }
-        })
+  const loadSection = async (index, page, replace = false) => {
+    setSections((prev) =>
+      prev.map((section, idx) =>
+        idx === index
+          ? { ...section, loading: replace, loadingMore: !replace }
+          : section
+      )
+    );
+
+    try {
+      const query = sectionConfig[index]?.query || "";
+      const data = await searchSongs(query, page);
+      const list = Array.isArray(data) ? data : data?.results || [];
+      const normalized = list.map(normalizeSong);
+
+      setSections((prev) => {
+        const nextSections = prev.map((item, idx) =>
+          idx === index
+            ? {
+                ...item,
+                songs: replace ? normalized : [...item.songs, ...normalized],
+                page,
+                loading: false,
+                loadingMore: false
+              }
+            : item
+        );
+        writeCache(nextSections);
+        return nextSections;
+      });
+    } catch {
+      setSections((prev) =>
+        prev.map((item, idx) =>
+          idx === index ? { ...item, loading: false, loadingMore: false } : item
+        )
       );
+    }
+  };
 
-      if (!cancelled) {
-        setSections(results);
+  React.useEffect(() => {
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
+
+    try {
+      const cached = JSON.parse(localStorage.getItem(HOME_CACHE_KEY));
+      if (cached?.updatedAt && Date.now() - cached.updatedAt < HOME_CACHE_TTL_MS) {
+        const cachedSections = sectionConfig.map((section, index) => {
+          const cachedItem = cached.sections?.[index];
+          return {
+            ...section,
+            songs: cachedItem?.songs || [],
+            page: cachedItem?.page || 1,
+            loading: false,
+            loadingMore: false
+          };
+        });
+        setSections(cachedSections);
+        return;
       }
-    };
+    } catch {
+      undefined;
+    }
 
-    load();
-    return () => {
-      cancelled = true;
-    };
+    sectionConfig.forEach((_, index) => {
+      loadSection(index, 1, true);
+    });
   }, []);
 
   const heroSongs = React.useMemo(() => sections[0]?.songs?.slice(0, 2) || [], [sections]);
+
+  const handleStart = () => {
+    const target = document.getElementById("discover");
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   return (
     <div className="px-4 sm:px-6 lg:px-10 pb-44">
@@ -54,16 +131,19 @@ const Home = () => {
         <div>
           <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">MusicWorld</p>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight mt-4">
-            A neon-first soundscape built for late-night discovery.
+            Fresh drops. Instant play.
           </h1>
-          <p className="text-white/70 mt-4">
-            Jump into fresh drops, glowing playlists, and curated rooms that evolve with your mood.
-          </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <button className="px-5 py-3 rounded-full bg-emerald-400 text-slate-900 font-semibold">
+            <button
+              className="px-5 py-3 rounded-full bg-emerald-400 text-slate-900 font-semibold"
+              onClick={handleStart}
+            >
               Start Listening
             </button>
-            <button className="px-5 py-3 rounded-full border border-white/15 text-white/80">
+            <button
+              className="px-5 py-3 rounded-full border border-white/15 text-white/80"
+              onClick={() => navigate("/playlists")}
+            >
               Build a Playlist
             </button>
           </div>
@@ -85,25 +165,11 @@ const Home = () => {
         </motion.div>
       </section>
 
-      <section className="mt-10 md:mt-12 grid md:grid-cols-3 gap-4 md:gap-6">
-        {[
-          { title: "Focus Rooms", body: "Curated waves of calm focus." },
-          { title: "Neon Playlists", body: "Build glassy, glowing mixes." },
-          { title: "Mood Sync", body: "Themes adapt to your genre." }
-        ].map((item) => (
-          <div key={item.title} className="glass rounded-2xl p-6">
-            <p className="text-lg font-semibold">{item.title}</p>
-            <p className="text-sm text-white/60 mt-2">{item.body}</p>
-          </div>
-        ))}
-      </section>
-
-      <section className="mt-10 md:mt-12 space-y-10">
-        {sections.map((section) => (
+      <section id="discover" className="mt-10 md:mt-12 space-y-10">
+        {sections.map((section, index) => (
           <div key={section.title}>
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">{section.title}</h2>
-              <p className="text-xs text-white/50">Fresh pulls from Saavn</p>
             </div>
             <div className="mt-4 flex gap-4 overflow-x-auto scrollbar-hide pb-2">
               {section.loading &&
@@ -123,9 +189,18 @@ const Home = () => {
                 <div className="text-sm text-white/50">No tracks loaded.</div>
               )}
               {!section.loading &&
-                section.songs.slice(0, 12).map((song) => (
+                section.songs.map((song) => (
                   <SongTile key={`${section.title}-${song.songId}`} song={song} list={section.songs} />
                 ))}
+              {!section.loading && (
+                <button
+                  className="glass rounded-2xl px-5 py-4 min-w-[160px] text-xs uppercase tracking-[0.3em] text-white/60 hover:text-white"
+                  onClick={() => loadSection(index, section.page + 1, false)}
+                  disabled={section.loadingMore}
+                >
+                  {section.loadingMore ? "Loading..." : "Load More"}
+                </button>
+              )}
             </div>
           </div>
         ))}

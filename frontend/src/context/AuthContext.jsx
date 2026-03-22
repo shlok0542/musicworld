@@ -1,4 +1,5 @@
-﻿import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { getProfile } from "../services/userService.js";
 
 const AuthContext = createContext(null);
 
@@ -11,6 +12,22 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem("mw-user");
     if (storedToken) setToken(storedToken);
     if (storedUser) setUser(JSON.parse(storedUser));
+
+    if (storedToken) {
+      getProfile()
+        .then((profile) => {
+          if (profile) {
+            setUser(profile);
+            localStorage.setItem("mw-user", JSON.stringify(profile));
+          }
+        })
+        .catch(() => {
+          setToken(null);
+          setUser(null);
+          localStorage.removeItem("mw-token");
+          localStorage.removeItem("mw-user");
+        });
+    }
   }, []);
 
   const login = (payload) => {

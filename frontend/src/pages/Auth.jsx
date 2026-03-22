@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { login, signup } from "../services/authService.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useUI } from "../context/UIContext.jsx";
 
 const Auth = () => {
   const [mode, setMode] = useState("login");
@@ -10,6 +11,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { login: setSession } = useAuth();
+  const { showToast, startLoading, stopLoading } = useUI();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -20,14 +22,18 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    startLoading();
     try {
       const payload = mode === "login" ? await login(form) : await signup(form);
       setSession(payload);
+      showToast({ type: "success", message: mode === "login" ? "Welcome back!" : "Account created." });
       navigate("/");
     } catch (err) {
       setError("Authentication failed. Please try again.");
+      showToast({ type: "error", message: "Authentication failed." });
     } finally {
       setLoading(false);
+      stopLoading();
     }
   };
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { usePlayer } from "../context/PlayerContext.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 import { addHistory } from "../services/userService.js";
 
 const formatTime = (value) => {
@@ -45,6 +46,7 @@ const Player = () => {
     next,
     prev
   } = usePlayer();
+  const { token } = useAuth();
 
   const [muted, setMuted] = useState(false);
 
@@ -56,7 +58,9 @@ const Player = () => {
     setDuration(0);
     if (isPlaying) {
       audioRef.current.play().catch(() => setIsPlaying(false));
-      addHistory(currentTrack).catch(() => undefined);
+      if (token) {
+        addHistory(currentTrack).catch(() => undefined);
+      }
     }
   }, [currentTrack]);
 
@@ -133,6 +137,10 @@ const Player = () => {
     }),
     []
   );
+
+  if (!currentTrack) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40">

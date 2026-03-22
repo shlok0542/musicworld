@@ -4,6 +4,7 @@ import LoadingSkeleton from "../components/LoadingSkeleton.jsx";
 import { searchSongs } from "../services/musicService.js";
 import { toggleLike } from "../services/userService.js";
 import { normalizeSong } from "../utils/normalizeSong.js";
+import { useUI } from "../context/UIContext.jsx";
 
 const chipStyles = "px-3 py-2 rounded-full text-xs uppercase tracking-[0.2em] border border-white/10 text-white/60 hover:text-white";
 
@@ -12,26 +13,34 @@ const Search = () => {
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { showToast, startLoading, stopLoading } = useUI();
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  const runSearch = async (value) => {
+    if (!value.trim()) return;
     setLoading(true);
     setError("");
+    startLoading();
     try {
-      const data = await searchSongs(query.trim());
+      const data = await searchSongs(value.trim());
       const list = Array.isArray(data) ? data : data?.results || [];
       setSongs(list.map(normalizeSong));
     } catch (err) {
       setError("Search failed. Try again in a moment.");
+      showToast({ type: "error", message: "Search failed." });
     } finally {
       setLoading(false);
+      stopLoading();
     }
   };
 
   const quickSearch = (value) => {
     setQuery(value);
-    handleSearch({ preventDefault: () => undefined });
+    runSearch(value);
+  };
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    runSearch(query);
   };
 
   return (
@@ -41,7 +50,7 @@ const Search = () => {
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Search</p>
             <h2 className="text-2xl md:text-3xl font-semibold mt-2">Find your next obsession.</h2>
-            <p className="text-white/60 mt-1 text-sm">Search songs, artists, or moods in seconds.</p>
+            <p className="text-white/70 mt-1 text-sm">Search songs, artists, or moods in seconds.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {["Workout", "Chill", "Love", "Party"].map((tag) => (
@@ -83,8 +92,9 @@ const Search = () => {
               onLike={async () => {
                 try {
                   await toggleLike(song);
+                  showToast({ type: "success", message: "Saved to likes." });
                 } catch {
-                  undefined;
+                  showToast({ type: "error", message: "Login to like songs." });
                 }
               }}
             />

@@ -4,6 +4,7 @@ import SongCard from "../components/SongCard.jsx";
 import { createPlaylist, fetchPlaylists, addSongToPlaylist } from "../services/playlistService.js";
 import { searchSongs } from "../services/musicService.js";
 import { normalizeSong } from "../utils/normalizeSong.js";
+import { useUI } from "../context/UIContext.jsx";
 
 const Playlists = () => {
   const [playlists, setPlaylists] = useState([]);
@@ -11,6 +12,7 @@ const Playlists = () => {
   const [active, setActive] = useState(null);
   const [search, setSearch] = useState("");
   const [songs, setSongs] = useState([]);
+  const { showToast, startLoading, stopLoading } = useUI();
 
   const loadPlaylists = async () => {
     try {
@@ -27,16 +29,31 @@ const Playlists = () => {
 
   const handleCreate = async () => {
     if (!name.trim()) return;
-    const created = await createPlaylist(name.trim());
-    setPlaylists((prev) => [created, ...prev]);
-    setName("");
+    startLoading();
+    try {
+      const created = await createPlaylist(name.trim());
+      setPlaylists((prev) => [created, ...prev]);
+      setName("");
+      showToast({ type: "success", message: "Playlist created." });
+    } catch {
+      showToast({ type: "error", message: "Login to create playlists." });
+    } finally {
+      stopLoading();
+    }
   };
 
   const handleSearch = async () => {
     if (!search.trim()) return;
-    const data = await searchSongs(search.trim());
-    const list = Array.isArray(data) ? data : data?.results || [];
-    setSongs(list.map(normalizeSong));
+    startLoading();
+    try {
+      const data = await searchSongs(search.trim());
+      const list = Array.isArray(data) ? data : data?.results || [];
+      setSongs(list.map(normalizeSong));
+    } catch {
+      showToast({ type: "error", message: "Search failed." });
+    } finally {
+      stopLoading();
+    }
   };
 
   return (
@@ -118,9 +135,20 @@ const Playlists = () => {
               song={song}
               list={songs}
               onAdd={async () => {
-                if (!active) return;
-                await addSongToPlaylist(active._id, song);
-                loadPlaylists();
+                if (!active) {
+                  showToast({ type: "error", message: "Select a playlist first." });
+                  return;
+                }
+                startLoading();
+                try {
+                  await addSongToPlaylist(active._id, song);
+                  loadPlaylists();
+                  showToast({ type: "success", message: "Added to playlist." });
+                } catch {
+                  showToast({ type: "error", message: "Login to manage playlists." });
+                } finally {
+                  stopLoading();
+                }
               }}
             />
           ))}

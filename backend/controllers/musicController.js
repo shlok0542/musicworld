@@ -1,4 +1,4 @@
-﻿import { searchSongs, getSongById } from "../services/saavnService.js";
+import { searchSongs, getSongById } from "../services/saavnService.js";
 
 const pickImage = (images = []) => {
   if (!Array.isArray(images) || images.length === 0) return "";
@@ -25,10 +25,11 @@ const normalizeSong = (item) => ({
 export const search = async (req, res, next) => {
   try {
     const query = req.query.q;
+    const page = Number(req.query.page || 1);
     if (!query) {
       return res.status(400).json({ message: "Query parameter q is required" });
     }
-    const data = await searchSongs(query);
+    const data = await searchSongs(query, page);
     const results = Array.isArray(data?.data?.results) ? data.data.results : [];
     res.json(results.map(normalizeSong));
   } catch (err) {

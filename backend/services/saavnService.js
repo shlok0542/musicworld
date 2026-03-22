@@ -1,10 +1,10 @@
-﻿import axios from "axios";
+import axios from "axios";
 
 const BASE_URL = process.env.SAAVN_BASE_URL || "https://saavn.sumit.co";
 
-export const searchSongs = async (query) => {
+export const searchSongs = async (query, page = 1) => {
   const url = `${BASE_URL}/api/search/songs`;
-  const response = await axios.get(url, { params: { query } });
+  const response = await axios.get(url, { params: { query, page } });
   return response.data;
 };
 
