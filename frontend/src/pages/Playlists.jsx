@@ -40,7 +40,7 @@ const Playlists = () => {
   };
 
   return (
-    <div className="px-6 pb-32 grid lg:grid-cols-[1fr_1.2fr] gap-8">
+    <div className="px-4 sm:px-6 lg:px-10 pb-36 grid lg:grid-cols-[1fr_1.2fr] gap-6 lg:gap-8">
       <div className="glass rounded-3xl p-6">
         <div className="flex items-start justify-between gap-4">
           <div>

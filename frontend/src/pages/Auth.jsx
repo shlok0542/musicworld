@@ -32,11 +32,11 @@ const Auth = () => {
   };
 
   return (
-    <div className="px-6 pb-40">
-      <div className="max-w-5xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
+    <div className="px-4 sm:px-6 lg:px-10 pb-36">
+      <div className="max-w-5xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-6 md:gap-8 items-center">
         <div>
           <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">MusicWorld</p>
-          <h1 className="text-4xl md:text-6xl font-semibold leading-tight mt-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight mt-4">
             Your world. Your wave. One account.
           </h1>
           <p className="text-white/70 mt-4">

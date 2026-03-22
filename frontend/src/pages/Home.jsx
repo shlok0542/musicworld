@@ -49,11 +49,11 @@ const Home = () => {
   const heroSongs = React.useMemo(() => sections[0]?.songs?.slice(0, 2) || [], [sections]);
 
   return (
-    <div className="px-6 pb-40">
-      <section className="grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
+    <div className="px-4 sm:px-6 lg:px-10 pb-44">
+      <section className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6 md:gap-8 items-center">
         <div>
           <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">MusicWorld</p>
-          <h1 className="text-4xl md:text-6xl font-semibold leading-tight mt-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight mt-4">
             A neon-first soundscape built for late-night discovery.
           </h1>
           <p className="text-white/70 mt-4">
@@ -85,7 +85,7 @@ const Home = () => {
         </motion.div>
       </section>
 
-      <section className="mt-12 grid md:grid-cols-3 gap-6">
+      <section className="mt-10 md:mt-12 grid md:grid-cols-3 gap-4 md:gap-6">
         {[
           { title: "Focus Rooms", body: "Curated waves of calm focus." },
           { title: "Neon Playlists", body: "Build glassy, glowing mixes." },
@@ -98,7 +98,7 @@ const Home = () => {
         ))}
       </section>
 
-      <section className="mt-12 space-y-10">
+      <section className="mt-10 md:mt-12 space-y-10">
         {sections.map((section) => (
           <div key={section.title}>
             <div className="flex items-center justify-between">

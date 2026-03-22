@@ -8,7 +8,7 @@ const SongCard = ({ song, onLike, onAdd, list }) => {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      className="glass rounded-2xl p-4 flex gap-4 items-center"
+      className="glass rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center"
     >
       <img
         src={song.image}
@@ -19,7 +19,7 @@ const SongCard = ({ song, onLike, onAdd, list }) => {
         <p className="font-semibold text-white truncate">{song.title}</p>
         <p className="text-xs text-white/60 truncate">{song.artist}</p>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           className="px-3 py-2 rounded-full text-xs uppercase tracking-[0.2em] border border-white/10 text-white/70 hover:text-white"
           onClick={() => setCurrentTrack(song, list)}

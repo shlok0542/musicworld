@@ -5,8 +5,8 @@ const PlayerView = () => {
   const { currentTrack, queue, setCurrentTrack } = usePlayer();
 
   return (
-    <div className="px-6 pb-32">
-      <div className="glass rounded-[40px] p-8 md:p-10 grid lg:grid-cols-[1fr_1.1fr] gap-8 items-center">
+    <div className="px-4 sm:px-6 lg:px-10 pb-36">
+      <div className="glass rounded-[32px] md:rounded-[40px] p-6 md:p-10 grid lg:grid-cols-[1fr_1.1fr] gap-6 md:gap-8 items-center">
         <div className="flex justify-center">
           <div className="relative">
             <img
@@ -15,7 +15,7 @@ const PlayerView = () => {
                 "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80&auto=format"
               }
               alt="album"
-              className="h-60 w-60 md:h-80 md:w-80 rounded-full object-cover border border-white/20 shadow-glow animate-spin-slow"
+              className="h-52 w-52 sm:h-60 sm:w-60 md:h-80 md:w-80 rounded-full object-cover border border-white/20 shadow-glow animate-spin-slow"
             />
             <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-400/30 to-cyan-400/10 blur-3xl" />
           </div>

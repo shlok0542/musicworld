@@ -126,8 +126,8 @@ const Player = () => {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40">
       <div className="glass border-t border-white/10">
-        <div className="max-w-6xl mx-auto px-4 py-3">
-          <div className="grid gap-4 md:grid-cols-[1.2fr_1.6fr_1.2fr] items-center">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-3">
+          <div className="grid gap-3 md:gap-4 md:grid-cols-[1.2fr_1.6fr_1.2fr] items-center">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <img

@@ -35,7 +35,7 @@ const Search = () => {
   };
 
   return (
-    <div className="px-6 pb-32">
+    <div className="px-4 sm:px-6 lg:px-10 pb-36">
       <div className="glass rounded-3xl p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>

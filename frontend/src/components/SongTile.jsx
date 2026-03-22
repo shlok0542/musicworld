@@ -8,12 +8,12 @@ const SongTile = ({ song, list }) => {
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      className="glass rounded-2xl p-3 min-w-[180px] max-w-[200px] flex flex-col gap-3"
+      className="glass rounded-2xl p-3 min-w-[150px] sm:min-w-[180px] max-w-[200px] flex flex-col gap-3"
     >
       <img
         src={song.image}
         alt={song.title}
-        className="h-36 w-full rounded-xl object-cover"
+        className="h-32 sm:h-36 w-full rounded-xl object-cover"
       />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-white truncate">{song.title}</p>

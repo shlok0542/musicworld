@@ -23,7 +23,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-6 py-4">
+    <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-4 sm:px-6 lg:px-10 py-4">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-glow" />
         <div>
