@@ -11,6 +11,19 @@ const formatTime = (value) => {
   return `${minutes}:${seconds}`;
 };
 
+const IconButton = ({ label, onClick, active, children }) => (
+  <button
+    type="button"
+    aria-label={label}
+    onClick={onClick}
+    className={`h-9 w-9 rounded-full flex items-center justify-center border transition ${
+      active ? "border-emerald-300 text-emerald-200" : "border-white/10 text-white/70"
+    } hover:text-white hover:border-white/30 bg-white/5`}
+  >
+    {children}
+  </button>
+);
+
 const Player = () => {
   const {
     audioRef,
@@ -121,8 +134,6 @@ const Player = () => {
     []
   );
 
-  const repeatLabel = repeatMode === "off" ? "Repeat Off" : repeatMode === "all" ? "Repeat All" : "Repeat One";
-
   return (
     <div className="fixed inset-x-0 bottom-0 z-40">
       <div className="glass border-t border-white/10">
@@ -149,40 +160,58 @@ const Player = () => {
 
             <div className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center justify-center gap-2">
-                <button
-                  className={`px-3 py-2 rounded-full text-[10px] uppercase tracking-[0.2em] border ${
-                    shuffle ? "border-emerald-300 text-emerald-200" : "border-white/10 text-white/60"
-                  }`}
+                <IconButton
+                  label="Shuffle"
                   onClick={() => setShuffle(!shuffle)}
+                  active={shuffle}
                 >
-                  Shuffle
-                </button>
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M16 3h5v5" />
+                    <path d="M4 20l5-5" />
+                    <path d="M4 4l6 6" />
+                    <path d="M21 3l-5 5" />
+                    <path d="M21 16v5h-5" />
+                    <path d="M15 15l6 6" />
+                  </svg>
+                </IconButton>
+                <IconButton label="Previous" onClick={handlePrev}>
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+                    <path d="M6 5h2v14H6zM18.5 5l-9.5 7 9.5 7V5z" />
+                  </svg>
+                </IconButton>
                 <button
-                  className="px-3 py-2 rounded-full text-[10px] uppercase tracking-[0.2em] border border-white/10 text-white/70"
-                  onClick={handlePrev}
-                >
-                  Prev
-                </button>
-                <button
-                  className="px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.2em] bg-emerald-400 text-slate-900 font-semibold"
+                  type="button"
+                  aria-label={isPlaying ? "Pause" : "Play"}
                   onClick={togglePlay}
+                  className="h-11 w-11 rounded-full flex items-center justify-center bg-emerald-400 text-slate-900 shadow-glow"
                 >
-                  {isPlaying ? "Pause" : "Play"}
+                  {isPlaying ? (
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+                      <path d="M6 5h4v14H6zM14 5h4v14h-4z" />
+                    </svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+                      <path d="M7 5v14l12-7z" />
+                    </svg>
+                  )}
                 </button>
-                <button
-                  className="px-3 py-2 rounded-full text-[10px] uppercase tracking-[0.2em] border border-white/10 text-white/70"
-                  onClick={handleNext}
-                >
-                  Next
-                </button>
-                <button
-                  className={`px-3 py-2 rounded-full text-[10px] uppercase tracking-[0.2em] border ${
-                    repeatMode !== "off" ? "border-emerald-300 text-emerald-200" : "border-white/10 text-white/60"
-                  }`}
+                <IconButton label="Next" onClick={handleNext}>
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+                    <path d="M16 5h2v14h-2zM5.5 5l9.5 7-9.5 7V5z" />
+                  </svg>
+                </IconButton>
+                <IconButton
+                  label="Repeat"
                   onClick={cycleRepeat}
+                  active={repeatMode !== "off"}
                 >
-                  {repeatLabel}
-                </button>
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17 1l4 4-4 4" />
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                    <path d="M7 23l-4-4 4-4" />
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                  </svg>
+                </IconButton>
               </div>
               <div className="flex items-center gap-3 text-[10px] text-white/50">
                 <span className="w-10 text-right">{formatTime(progress)}</span>
@@ -200,7 +229,11 @@ const Player = () => {
 
             <div className="flex flex-wrap items-center justify-center md:justify-end gap-3">
               <div className="flex items-center gap-2 text-xs text-white/60">
-                <span>Vol</span>
+                <IconButton label="Volume" onClick={() => undefined}>
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+                    <path d="M11 5L6 9H3v6h3l5 4V5z" />
+                  </svg>
+                </IconButton>
                 <input
                   type="range"
                   min="0"
@@ -211,14 +244,19 @@ const Player = () => {
                   className="accent-emerald-400"
                 />
               </div>
-              <button
-                className={`px-3 py-2 rounded-full text-[10px] uppercase tracking-[0.2em] border ${
-                  muted ? "border-emerald-300 text-emerald-200" : "border-white/10 text-white/60"
-                }`}
-                onClick={() => setMuted((prev) => !prev)}
-              >
-                {muted ? "Muted" : "Mute"}
-              </button>
+              <IconButton label={muted ? "Unmute" : "Mute"} onClick={() => setMuted((prev) => !prev)} active={muted}>
+                {muted ? (
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+                    <path d="M16.5 12L19 14.5 17.5 16l-2.5-2.5-2.5 2.5L11 14.5 13.5 12 11 9.5 12.5 8l2.5 2.5L17.5 8 19 9.5z" />
+                    <path d="M11 5L6 9H3v6h3l5 4V5z" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+                    <path d="M11 5L6 9H3v6h3l5 4V5z" />
+                    <path d="M15 9a4 4 0 0 1 0 6" stroke="currentColor" strokeWidth="2" fill="none" />
+                  </svg>
+                )}
+              </IconButton>
               <div className="text-[10px] text-white/40 uppercase tracking-[0.3em]">
                 Queue {queue.length}
               </div>
