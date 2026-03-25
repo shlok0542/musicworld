@@ -229,8 +229,8 @@ const Player = () => {
     <div className="fixed inset-x-0 bottom-0 z-40">
       <div className="glass border-t border-white/10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-3">
-          <div className="grid gap-3 md:gap-4 md:grid-cols-[1.2fr_1.6fr_1.2fr] items-center">
-            <div className="flex items-center gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1.6fr_1.2fr] gap-3 md:gap-4 items-center">
+            <div className="flex items-center md:items-center justify-center md:justify-start gap-3">
               <div className="relative">
                 <img
                   src={cover}
@@ -239,7 +239,7 @@ const Player = () => {
                 />
                 <div className="absolute -inset-2 rounded-full opacity-30 blur-xl" style={shimmer} />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 text-center md:text-left">
                 <p className="text-sm font-semibold text-white truncate">
                   {currentTrack?.title || "Pick a track"}
                 </p>

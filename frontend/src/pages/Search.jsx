@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import SongCard from "../components/SongCard.jsx";
 import LoadingSkeleton from "../components/LoadingSkeleton.jsx";
 import MediaTile from "../components/MediaTile.jsx";
@@ -33,6 +33,7 @@ const filters = [
 
 const Search = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [query, setQuery] = useState("");
   const [songs, setSongs] = useState([]);
   const [media, setMedia] = useState([]);
@@ -64,6 +65,14 @@ const Search = () => {
     setSongs([]);
     setMedia([]);
   }, [filter]);
+
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q) {
+      setQuery(q);
+      runSearch(q, filter, 1, false);
+    }
+  }, [searchParams, filter]);
 
   const runSearch = async (value, type = filter, nextPage = 1, append = false) => {
     if (!value.trim()) return;

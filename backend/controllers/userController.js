@@ -9,6 +9,21 @@ export const getProfile = async (req, res, next) => {
   }
 };
 
+export const updateProfile = async (req, res, next) => {
+  try {
+    const { name, avatar } = req.body;
+    const update = {};
+    if (typeof name === "string" && name.trim()) update.name = name.trim();
+    if (typeof avatar === "string") update.avatar = avatar.trim();
+    const user = await User.findByIdAndUpdate(req.user.id, update, {
+      new: true
+    }).select("-password");
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const toggleLike = async (req, res, next) => {
   try {
     const { song } = req.body;

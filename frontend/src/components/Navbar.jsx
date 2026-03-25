@@ -3,21 +3,6 @@ import { NavLink, useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
-const NavItem = ({ to, label }) => (
-  <NavLink
-    to={to}
-    className={({ isActive }) =>
-      `px-3 py-2 rounded-full text-sm tracking-wide transition ${
-        isActive
-          ? "bg-white/15 text-white"
-          : "text-white/70 hover:text-white hover:bg-white/10"
-      }`
-    }
-  >
-    {label}
-  </NavLink>
-);
-
 const MenuButton = ({ onClick, open }) => (
   <button
     type="button"
@@ -34,7 +19,7 @@ const MenuButton = ({ onClick, open }) => (
 );
 
 const MenuPanel = ({ onClose, isLoggedIn, onLogin }) => (
-  <div className="absolute right-0 mt-4 w-64 glass rounded-2xl p-4 shadow-glass z-50">
+  <div className="absolute left-0 mt-4 w-64 glass rounded-2xl p-4 shadow-glass z-50">
     <div className="flex items-center justify-between">
       <p className="text-xs uppercase tracking-[0.3em] text-white/50">Quick Menu</p>
       <button
@@ -46,7 +31,7 @@ const MenuPanel = ({ onClose, isLoggedIn, onLogin }) => (
         ✕
       </button>
     </div>
-    <div className="mt-4 space-y-2">
+    <div className="mt-20 space-y-2">
       {isLoggedIn ? (
         <>
           <NavLink to="/profile" className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
@@ -61,12 +46,6 @@ const MenuPanel = ({ onClose, isLoggedIn, onLogin }) => (
           <NavLink to="/settings" className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
             Settings
           </NavLink>
-          <div className="rounded-xl px-3 py-2 text-sm text-white/80 bg-white/5">
-            Theme
-            <div className="mt-2">
-              <ThemeToggle />
-            </div>
-          </div>
         </>
       ) : (
         <div className="grid gap-2">
@@ -94,6 +73,7 @@ const Navbar = () => {
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [search, setSearch] = React.useState("");
   const menuRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -111,22 +91,67 @@ const Navbar = () => {
     };
   }, [menuOpen]);
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!search.trim()) return;
+    navigate(`/search?q=${encodeURIComponent(search.trim())}`);
+  };
+
+  const handleProfile = () => {
+    if (user && token) {
+      navigate("/profile");
+    } else {
+      navigate("/auth");
+    }
+  };
+
   return (
-    <header className="relative z-40 flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-4 sm:px-6 lg:px-10 py-4">
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-glow" />
-        <div>
-          <p className="text-lg font-semibold">MusicWorld</p>
-          <p className="text-xs text-white/60">Immersive streaming</p>
+    <header className="sticky top-0 z-50 flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 sm:px-6 lg:px-10 py-4 backdrop-blur-xl bg-slate-950/70 border-b border-white/5">
+      <div className="flex items-center gap-4" ref={menuRef}>
+        <MenuButton open={menuOpen} onClick={() => setMenuOpen((prev) => !prev)} />
+        {menuOpen && (
+          <MenuPanel
+            onClose={() => setMenuOpen(false)}
+            isLoggedIn={!!user && !!token}
+            onLogin={() => {
+              setMenuOpen(false);
+              navigate("/auth");
+            }}
+          />
+        )}
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-glow" />
+          <div>
+            <p className="text-lg font-semibold">MusicWorld</p>
+            <p className="text-xs text-white/60">Immersive streaming</p>
+          </div>
         </div>
       </div>
-      <nav className="flex flex-wrap items-center gap-2 glass px-3 py-2 rounded-full">
-        <NavItem to="/" label="Home" />
-        <NavItem to="/search" label="Search" />
-        {user && <NavItem to="/playlists" label="Playlists" />}
-        <NavItem to="/player" label="Player" />
-      </nav>
-      <div ref={menuRef} className="flex flex-wrap items-center gap-3 relative">
+
+      <div className="flex flex-1 items-center justify-end gap-3">
+        <form onSubmit={handleSearch} className="hidden sm:flex items-center gap-2 glass rounded-full px-3 py-2">
+          <svg viewBox="0 0 24 24" className="h-4 w-4 text-white/60" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M20 20l-3.5-3.5" />
+          </svg>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search..."
+            className="bg-transparent outline-none text-sm w-44"
+          />
+        </form>
+        <button
+          type="button"
+          onClick={handleProfile}
+          className="h-10 w-10 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/70 hover:text-white"
+          aria-label="Profile"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c2-4 14-4 16 0" />
+          </svg>
+        </button>
         {user && token && (
           <button
             className="text-xs uppercase tracking-[0.2em] text-white/70 hover:text-white"
@@ -134,17 +159,6 @@ const Navbar = () => {
           >
             Logout
           </button>
-        )}
-        <MenuButton open={menuOpen} onClick={() => setMenuOpen((prev) => !prev)} />
-        {menuOpen && (
-          <MenuPanel
-            onClose={() => setMenuOpen(false)}
-            isLoggedIn={!!user}
-            onLogin={() => {
-              setMenuOpen(false);
-              navigate("/auth");
-            }}
-          />
         )}
       </div>
     </header>
