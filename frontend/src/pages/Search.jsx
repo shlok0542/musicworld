@@ -159,7 +159,7 @@ const Search = () => {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-10 pb-36">
+    <div className="px-4 sm:px-6 lg:px-10 pb-36 overflow-x-hidden">
       <div className="glass rounded-3xl p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
