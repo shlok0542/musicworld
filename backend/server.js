@@ -39,7 +39,7 @@ app.use(express.json({ limit: "1mb" }));
 app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
-  res.json({ status: "ok", name: "MusicWorld API" });
+  res.json({ status: "ok", name: "MusicWorlds API" });
 });
 
 app.use("/api/auth", authRoutes);

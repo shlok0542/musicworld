@@ -120,7 +120,7 @@ const Home = () => {
     <div className="px-4 sm:px-6 lg:px-10 pb-44">
       <section className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6 md:gap-8 items-center">
         <div>
-          <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">MusicWorld</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">MusicWorlds</p>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight mt-4">
             Fresh drops. Instant play.
           </h1>

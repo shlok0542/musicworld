@@ -1,204 +1,53 @@
-import React, { useEffect, useState } from "react";
-import PlaylistCard from "../components/PlaylistCard.jsx";
-import SongCard from "../components/SongCard.jsx";
-import { createPlaylist, fetchPlaylists, addSongToPlaylist } from "../services/playlistService.js";
-import { searchSongs } from "../services/musicService.js";
-import { normalizeSong } from "../utils/normalizeSong.js";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useUI } from "../context/UIContext.jsx";
-import { toggleLike } from "../services/userService.js";
-import { getProfile } from "../services/userService.js";
 import { useAuth } from "../context/AuthContext.jsx";
 
 const Playlists = () => {
-  const [playlists, setPlaylists] = useState([]);
-  const [likedSongs, setLikedSongs] = useState([]);
-  const [name, setName] = useState("");
-  const [active, setActive] = useState(null);
-  const [search, setSearch] = useState("");
-  const [songs, setSongs] = useState([]);
-  const { showToast, startLoading, stopLoading } = useUI();
+  const { showToast } = useUI();
   const { token } = useAuth();
-
-  const loadPlaylists = async () => {
-    try {
-      const data = await fetchPlaylists();
-      setPlaylists(data);
-    } catch {
-      undefined;
-    }
-  };
-
-  useEffect(() => {
-    loadPlaylists();
-  }, []);
-
-  useEffect(() => {
-    if (!token) {
-      setLikedSongs([]);
-      return;
-    }
-    getProfile()
-      .then((profile) => setLikedSongs(profile?.likedSongs || []))
-      .catch(() => undefined);
-  }, [token]);
-
-  const handleCreate = async () => {
-    if (!name.trim()) return;
-    startLoading();
-    try {
-      const created = await createPlaylist(name.trim());
-      setPlaylists((prev) => [created, ...prev]);
-      setName("");
-      showToast({ type: "success", message: "Playlist created." });
-    } catch {
-      showToast({ type: "error", message: "Login to create playlists." });
-    } finally {
-      stopLoading();
-    }
-  };
-
-  const handleSearch = async () => {
-    if (!search.trim()) return;
-    startLoading();
-    try {
-      const data = await searchSongs(search.trim());
-      const list = Array.isArray(data) ? data : data?.results || [];
-      setSongs(list.map(normalizeSong));
-    } catch {
-      showToast({ type: "error", message: "Search failed." });
-    } finally {
-      stopLoading();
-    }
-  };
+  const navigate = useNavigate();
 
   return (
-    <div className="px-4 sm:px-6 lg:px-10 pb-36 grid lg:grid-cols-[1fr_1.2fr] gap-6 lg:gap-8">
-      <div className="glass rounded-3xl p-6">
-        <div className="flex items-start justify-between gap-4">
+    <div className="px-4 sm:px-6 lg:px-10 pb-36 space-y-6">
+      <div className="grid sm:grid-cols-2 gap-4">
+        <button
+          type="button"
+          onClick={() => {
+            if (!token) {
+              showToast({ type: "error", message: "Login to view favorites." });
+              return;
+            }
+            navigate("/library/favorites");
+          }}
+          className="glass rounded-3xl p-5 flex items-center gap-4 text-left hover:border-white/20 border border-white/10"
+        >
+          <div className="h-12 w-12 rounded-2xl bg-rose-400/20 text-rose-200 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 21s-7-4.35-9-8.5C1.5 9 3.5 6 6.5 6c2 0 3.2 1 4.1 2.3C11.3 7 12.5 6 14.5 6 17.5 6 19.5 9 21 12.5 19 16.65 12 21 12 21z" />
+            </svg>
+          </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Playlists</p>
-            <h2 className="text-2xl md:text-3xl font-semibold mt-2">Craft your neon mixes.</h2>
-            <p className="text-white/60 mt-1 text-sm">Create a playlist and start collecting favorites.</p>
+            <p className="text-sm text-white/60">Favorites</p>
+            <h3 className="text-lg font-semibold">Liked Songs</h3>
           </div>
-        </div>
-        <div className="mt-4 flex flex-col md:flex-row gap-3">
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="New playlist name"
-            className="flex-1 bg-transparent border border-white/10 rounded-2xl px-4 py-3"
-          />
-          <button
-            onClick={handleCreate}
-            className="px-4 py-3 rounded-2xl bg-emerald-400 text-slate-900 font-semibold"
-          >
-            Create
-          </button>
-        </div>
-        <div className="mt-6 grid gap-4">
-          {playlists.length === 0 && (
-            <div className="glass rounded-2xl p-6 text-center text-white/60">
-              No playlists yet. Create one to start collecting tracks.
-            </div>
-          )}
-          {playlists.map((playlist) => (
-            <PlaylistCard
-              key={playlist._id}
-              playlist={playlist}
-              onOpen={() => setActive(playlist)}
-            />
-          ))}
-        </div>
+        </button>
 
-        {token && (
-          <div className="mt-8">
-            <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Liked Songs</p>
-            <h3 className="text-xl font-semibold mt-2">Your favorites</h3>
-            <div className="mt-4 grid gap-4">
-              {likedSongs.length === 0 && (
-                <div className="glass rounded-2xl p-6 text-center text-white/60">
-                  No liked songs yet. Tap the heart to save tracks.
-                </div>
-              )}
-              {likedSongs.map((song) => (
-                <SongCard
-                  key={song.songId}
-                  song={song}
-                  list={likedSongs}
-                  playIcon
-                  onLike={async () => {
-                    try {
-                      await toggleLike(song);
-                      setLikedSongs((prev) => prev.filter((s) => s.songId !== song.songId));
-                      showToast({ type: "success", message: "Removed from favorites." });
-                    } catch {
-                      showToast({ type: "error", message: "Unable to remove song." });
-                    }
-                  }}
-                />
-              ))}
-            </div>
+        <button
+          type="button"
+          onClick={() => navigate("/library/playlists")}
+          className="glass rounded-3xl p-5 flex items-center gap-4 text-left hover:border-white/20 border border-white/10"
+        >
+          <div className="h-12 w-12 rounded-2xl bg-emerald-400/20 text-emerald-200 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 6h16M4 12h16M4 18h10" />
+            </svg>
           </div>
-        )}
-      </div>
-
-      <div className="glass rounded-3xl p-6">
-        <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Add Tracks</p>
-            <h2 className="text-2xl md:text-3xl font-semibold mt-2">Fill the mix.</h2>
-            <p className="text-white/60 mt-1 text-sm">Search tracks and drop them into your playlist.</p>
+            <p className="text-sm text-white/60">Library</p>
+            <h3 className="text-lg font-semibold">Playlists</h3>
           </div>
-        </div>
-        <div className="mt-4 flex flex-col md:flex-row gap-3">
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search for songs"
-            className="flex-1 bg-transparent border border-white/10 rounded-2xl px-4 py-3"
-          />
-          <button
-            onClick={handleSearch}
-            className="px-4 py-3 rounded-2xl border border-white/10 text-white/70"
-          >
-            Find
-          </button>
-        </div>
-
-        {active && (
-          <div className="mt-4 text-xs text-emerald-300">Adding to: {active.name}</div>
-        )}
-
-        <div className="mt-6 grid gap-4">
-          {songs.length === 0 && (
-            <div className="glass rounded-2xl p-6 text-center text-white/60">
-              Search to load tracks and start building your playlist.
-            </div>
-          )}
-          {songs.map((song) => (
-            <SongCard
-              key={song.songId}
-              song={song}
-              list={songs}
-              onAdd={async () => {
-                if (!active) {
-                  showToast({ type: "error", message: "Select a playlist first." });
-                  return;
-                }
-                startLoading();
-                try {
-                  await addSongToPlaylist(active._id, song);
-                  loadPlaylists();
-                  showToast({ type: "success", message: "Added to playlist." });
-                } catch {
-                  showToast({ type: "error", message: "Login to manage playlists." });
-                } finally {
-                  stopLoading();
-                }
-              }}
-            />
-          ))}
-        </div>
+        </button>
       </div>
     </div>
   );

@@ -34,11 +34,11 @@ const MenuPanel = ({ onClose, isLoggedIn, onLogin }) => (
     <div className="mt-20 space-y-2">
       {isLoggedIn ? (
         <>
-          <NavLink to="/profile" className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
-            Profile
+          <NavLink to="/" className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
+            Home
           </NavLink>
           <NavLink to="/playlists" className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
-            Playlists
+            Library
           </NavLink>
           <NavLink to="/history" className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
             History
@@ -106,8 +106,8 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 sm:px-6 lg:px-10 py-4 backdrop-blur-xl bg-slate-950/70 border-b border-white/5">
-      <div className="flex items-center gap-4" ref={menuRef}>
+    <header className="sticky top-0 z-50 flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-10 py-4 backdrop-blur-xl bg-slate-950/70 border-b border-white/5">
+      <div className="flex items-center gap-3" ref={menuRef}>
         <MenuButton open={menuOpen} onClick={() => setMenuOpen((prev) => !prev)} />
         {menuOpen && (
           <MenuPanel
@@ -120,15 +120,19 @@ const Navbar = () => {
           />
         )}
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 shadow-glow" />
-          <div>
-            <p className="text-lg font-semibold">MusicWorld</p>
+          <img
+            src="/logo.png"
+            alt="MusicWorlds"
+            className="h-10 w-10 rounded-2xl object-cover shadow-glow"
+          />
+          <div className="hidden sm:block">
+            <p className="text-lg font-semibold">MusicWorlds</p>
             <p className="text-xs text-white/60">Immersive streaming</p>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-1 items-center justify-end gap-3">
+      <div className="flex items-center justify-end gap-3">
         <form onSubmit={handleSearch} className="hidden sm:flex items-center gap-2 glass rounded-full px-3 py-2">
           <svg viewBox="0 0 24 24" className="h-4 w-4 text-white/60" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="7" />
@@ -141,6 +145,17 @@ const Navbar = () => {
             className="bg-transparent outline-none text-sm w-44"
           />
         </form>
+        <button
+          type="button"
+          onClick={() => navigate("/search")}
+          className="sm:hidden h-10 w-10 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/70 hover:text-white"
+          aria-label="Search"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M20 20l-3.5-3.5" />
+          </svg>
+        </button>
         <button
           type="button"
           onClick={handleProfile}
