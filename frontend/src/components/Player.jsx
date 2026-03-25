@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { usePlayer } from "../context/PlayerContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import { addHistory } from "../services/userService.js";
+import { useUI } from "../context/UIContext.jsx";
+import { addHistory, toggleLike } from "../services/userService.js";
+import { fetchPlaylists, addSongToPlaylist } from "../services/playlistService.js";
 
 const formatTime = (value) => {
   if (!value || Number.isNaN(value)) return "0:00";
@@ -47,8 +49,11 @@ const Player = () => {
     prev
   } = usePlayer();
   const { token } = useAuth();
+  const { showToast } = useUI();
 
   const [muted, setMuted] = useState(false);
+  const [playlists, setPlaylists] = useState([]);
+  const [showAdd, setShowAdd] = useState(false);
 
   useEffect(() => {
     if (!currentTrack || !audioRef.current) return;
@@ -124,6 +129,45 @@ const Player = () => {
       return;
     }
     next();
+  };
+
+  const handleLike = async () => {
+    if (!currentTrack) return;
+    if (!token) {
+      showToast({ type: "error", message: "Login to like songs." });
+      return;
+    }
+    try {
+      await toggleLike(currentTrack);
+      showToast({ type: "success", message: "Liked song." });
+    } catch {
+      showToast({ type: "error", message: "Unable to like song." });
+    }
+  };
+
+  const handleOpenAdd = async () => {
+    if (!token) {
+      showToast({ type: "error", message: "Login to add to playlist." });
+      return;
+    }
+    try {
+      const list = await fetchPlaylists();
+      setPlaylists(list);
+      setShowAdd((prev) => !prev);
+    } catch {
+      showToast({ type: "error", message: "Unable to load playlists." });
+    }
+  };
+
+  const handleAddToPlaylist = async (playlistId) => {
+    if (!currentTrack) return;
+    try {
+      await addSongToPlaylist(playlistId, currentTrack);
+      showToast({ type: "success", message: "Added to playlist." });
+      setShowAdd(false);
+    } catch {
+      showToast({ type: "error", message: "Failed to add song." });
+    }
   };
 
   const cover =
@@ -235,22 +279,34 @@ const Player = () => {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center md:justify-end gap-3">
-              <div className="flex items-center gap-2 text-xs text-white/60">
-                <IconButton label="Volume" onClick={() => undefined}>
-                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-                    <path d="M11 5L6 9H3v6h3l5 4V5z" />
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 relative">
+              <IconButton label="Like" onClick={handleLike}>
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
+                </svg>
+              </IconButton>
+              <div className="relative">
+                <IconButton label="Add to playlist" onClick={handleOpenAdd}>
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 5v14M5 12h14" />
                   </svg>
                 </IconButton>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value={volume}
-                  onChange={(e) => setVolume(Number(e.target.value))}
-                  className="accent-emerald-400"
-                />
+                {showAdd && (
+                  <div className="absolute right-0 mt-2 w-48 glass rounded-2xl p-2 shadow-glass z-50">
+                    {playlists.length === 0 && (
+                      <div className="px-3 py-2 text-xs text-white/60">No playlists found.</div>
+                    )}
+                    {playlists.map((pl) => (
+                      <button
+                        key={pl._id}
+                        className="w-full text-left px-3 py-2 rounded-xl text-xs text-white/80 hover:bg-white/10"
+                        onClick={() => handleAddToPlaylist(pl._id)}
+                      >
+                        {pl.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <IconButton label={muted ? "Unmute" : "Mute"} onClick={() => setMuted((prev) => !prev)} active={muted}>
                 {muted ? (

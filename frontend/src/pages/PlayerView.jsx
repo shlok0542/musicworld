@@ -6,7 +6,7 @@ const PlayerView = () => {
 
   return (
     <div className="px-4 sm:px-6 lg:px-10 pb-36">
-      <div className="glass rounded-[32px] md:rounded-[40px] p-6 md:p-10 grid lg:grid-cols-[1fr_1.1fr] gap-6 md:gap-8 items-center">
+      <div className="glass rounded-[32px] md:rounded-[40px] p-6 md:p-10 grid lg:grid-cols-[1fr_1.1fr] gap-6 md:gap-8 items-start">
         <div className="flex justify-center">
           <div className="relative">
             <img
@@ -20,12 +20,14 @@ const PlayerView = () => {
             <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-400/30 to-cyan-400/10 blur-3xl" />
           </div>
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Now Spinning</p>
-          <h2 className="text-3xl md:text-5xl font-semibold mt-3">
+          <h2 className="text-3xl md:text-5xl font-semibold mt-3 leading-tight break-words">
             {currentTrack?.title || "Choose a track to ignite the room"}
           </h2>
-          <p className="text-white/70 mt-2">{currentTrack?.artist || "Your soundscape awaits"}</p>
+          <p className="text-white/70 mt-2 break-words">
+            {currentTrack?.artist || "Your soundscape awaits"}
+          </p>
           <div className="mt-6 grid grid-cols-2 gap-4">
             {[
               { label: "Genre", value: "Synthwave" },
@@ -60,10 +62,14 @@ const PlayerView = () => {
             <button
               key={song.songId}
               onClick={() => setCurrentTrack(song, queue)}
-              className="w-full flex items-center gap-4 rounded-2xl px-4 py-3 hover:bg-white/5"
+              className="w-full flex items-center gap-4 rounded-2xl px-4 py-3 hover:bg-white/5 min-w-0"
             >
-              <img src={song.image} alt={song.title} className="h-12 w-12 rounded-xl object-cover" />
-              <div className="flex-1 text-left">
+              <img
+                src={song.image}
+                alt={song.title}
+                className="h-12 w-12 rounded-xl object-cover shrink-0"
+              />
+              <div className="flex-1 text-left min-w-0">
                 <p className="text-sm font-semibold text-white truncate">{song.title}</p>
                 <p className="text-xs text-white/60 truncate">{song.artist}</p>
               </div>

@@ -2,21 +2,30 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import SongCard from "../components/SongCard.jsx";
-import SongTile from "../components/SongTile.jsx";
-import { searchSongs } from "../services/musicService.js";
-import { normalizeSong } from "../utils/normalizeSong.js";
+import MediaTile from "../components/MediaTile.jsx";
+import {
+  searchSongs,
+  searchAlbums,
+  searchPlaylists,
+  searchArtists,
+  searchGlobal
+} from "../services/musicService.js";
+import {
+  normalizeSong,
+  normalizeAlbum,
+  normalizePlaylist,
+  normalizeArtist,
+  normalizeGlobal
+} from "../utils/normalizeSong.js";
 
 const sectionConfig = [
-  { title: "Latest Drops", query: "new releases" },
-  { title: "Trending Now", query: "trending" },
-  { title: "Top Hindi", query: "hindi hits" },
-  { title: "Punjabi Energy", query: "punjabi hits" },
-  { title: "Indie Spotlight", query: "indie" },
-  { title: "Chillwave", query: "chill" }
+  { title: "Latest Drops", query: "new releases", type: "song" },
+  { title: "Trending Now", query: "trending", type: "song" },
+  { title: "Top Hindi", query: "hindi hits", type: "song" },
+  { title: "Playlist Picks", query: "indie", type: "playlist" },
+  { title: "Artist Spotlight", query: "Adele", type: "artist" },
+  { title: "Album Radar", query: "Evolve", type: "album" }
 ];
-
-const HOME_CACHE_KEY = "mw-home-cache-v1";
-const HOME_CACHE_TTL_MS = 10 * 60 * 1000;
 
 const Home = () => {
   const navigate = useNavigate();
@@ -24,29 +33,12 @@ const Home = () => {
   const [sections, setSections] = React.useState(() =>
     sectionConfig.map((section) => ({
       ...section,
-      songs: [],
+      items: [],
       page: 1,
       loading: true,
       loadingMore: false
     }))
   );
-
-  const writeCache = (nextSections) => {
-    try {
-      const payload = {
-        updatedAt: Date.now(),
-        sections: nextSections.map((section) => ({
-          title: section.title,
-          query: section.query,
-          songs: section.songs,
-          page: section.page
-        }))
-      };
-      localStorage.setItem(HOME_CACHE_KEY, JSON.stringify(payload));
-    } catch {
-      undefined;
-    }
-  };
 
   const loadSection = async (index, page, replace = false) => {
     setSections((prev) =>
@@ -58,26 +50,35 @@ const Home = () => {
     );
 
     try {
-      const query = sectionConfig[index]?.query || "";
-      const data = await searchSongs(query, page);
-      const list = Array.isArray(data) ? data : data?.results || [];
-      const normalized = list.map(normalizeSong);
+      const config = sectionConfig[index];
+      let data;
+      if (config.type === "album") data = await searchAlbums(config.query, page);
+      if (config.type === "playlist") data = await searchPlaylists(config.query, page);
+      if (config.type === "artist") data = await searchArtists(config.query, page);
+      if (config.type === "global") data = await searchGlobal(config.query);
+      if (config.type === "song") data = await searchSongs(config.query, page);
 
-      setSections((prev) => {
-        const nextSections = prev.map((item, idx) =>
+      const raw = Array.isArray(data) ? data : data?.results || [];
+      let normalized = raw;
+      if (config.type === "song") normalized = raw.map(normalizeSong);
+      if (config.type === "album") normalized = raw.map(normalizeAlbum);
+      if (config.type === "playlist") normalized = raw.map(normalizePlaylist);
+      if (config.type === "artist") normalized = raw.map(normalizeArtist);
+      if (config.type === "global") normalized = raw.map(normalizeGlobal);
+
+      setSections((prev) =>
+        prev.map((item, idx) =>
           idx === index
             ? {
                 ...item,
-                songs: replace ? normalized : [...item.songs, ...normalized],
+                items: replace ? normalized : [...item.items, ...normalized],
                 page,
                 loading: false,
                 loadingMore: false
               }
             : item
-        );
-        writeCache(nextSections);
-        return nextSections;
-      });
+        )
+      );
     } catch {
       setSections((prev) =>
         prev.map((item, idx) =>
@@ -91,37 +92,27 @@ const Home = () => {
     if (hasLoadedRef.current) return;
     hasLoadedRef.current = true;
 
-    try {
-      const cached = JSON.parse(localStorage.getItem(HOME_CACHE_KEY));
-      if (cached?.updatedAt && Date.now() - cached.updatedAt < HOME_CACHE_TTL_MS) {
-        const cachedSections = sectionConfig.map((section, index) => {
-          const cachedItem = cached.sections?.[index];
-          return {
-            ...section,
-            songs: cachedItem?.songs || [],
-            page: cachedItem?.page || 1,
-            loading: false,
-            loadingMore: false
-          };
-        });
-        setSections(cachedSections);
-        return;
-      }
-    } catch {
-      undefined;
-    }
-
     sectionConfig.forEach((_, index) => {
       loadSection(index, 1, true);
     });
   }, []);
 
-  const heroSongs = React.useMemo(() => sections[0]?.songs?.slice(0, 2) || [], [sections]);
+  const heroSongs = React.useMemo(() => sections[0]?.items?.slice(0, 2) || [], [sections]);
 
   const handleStart = () => {
     const target = document.getElementById("discover");
     if (target) {
       target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleOpen = (item, type) => {
+    if (type === "playlist") {
+      navigate(`/playlist/${item.id}`);
+      return;
+    }
+    if (item?.url) {
+      window.open(item.url, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -185,14 +176,20 @@ const Home = () => {
                     </div>
                   </div>
                 ))}
-              {!section.loading && section.songs.length === 0 && (
-                <div className="text-sm text-white/50">No tracks loaded.</div>
+              {!section.loading && section.items.length === 0 && (
+                <div className="text-sm text-white/50">No items loaded.</div>
               )}
               {!section.loading &&
-                section.songs.map((song) => (
-                  <SongTile key={`${section.title}-${song.songId}`} song={song} list={section.songs} />
+                section.items.map((item) => (
+                  <MediaTile
+                    key={`${section.title}-${item.id}`}
+                    item={item}
+                    list={section.items}
+                    type={section.type}
+                    onOpen={() => handleOpen(item, section.type)}
+                  />
                 ))}
-              {!section.loading && (
+              {!section.loading && section.type !== "global" && (
                 <button
                   className="glass rounded-2xl px-5 py-4 min-w-[160px] text-xs uppercase tracking-[0.3em] text-white/60 hover:text-white"
                   onClick={() => loadSection(index, section.page + 1, false)}

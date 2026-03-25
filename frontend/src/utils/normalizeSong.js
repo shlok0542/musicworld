@@ -28,3 +28,36 @@ export const normalizeSong = (item) => ({
   duration: Number(item.duration || item.song_duration || 0),
   url: pickAudio(item.downloadUrl || item.download_links, item.url)
 });
+
+export const normalizeAlbum = (item) => ({
+  id: item.id || item.album_id,
+  title: item.name || item.title,
+  subtitle: item.artist || item.year || item.language || "Album",
+  image: pickImage(item.image),
+  url: item.url || ""
+});
+
+export const normalizePlaylist = (item) => ({
+  id: item.id,
+  title: item.name || item.title,
+  subtitle: item.language || (item.songCount ? `${item.songCount} tracks` : "Playlist"),
+  image: pickImage(item.image),
+  url: item.url || ""
+});
+
+export const normalizeArtist = (item) => ({
+  id: item.id,
+  title: item.name || item.title,
+  subtitle: item.role || item.language || "Artist",
+  image: pickImage(item.image),
+  url: item.url || ""
+});
+
+export const normalizeGlobal = (item) => ({
+  id: item.id,
+  type: item.type,
+  title: item.name || item.title,
+  subtitle: item.type || "Result",
+  image: pickImage(item.image),
+  url: item.url || ""
+});

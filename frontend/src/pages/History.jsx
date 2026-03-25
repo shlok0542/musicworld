@@ -35,7 +35,7 @@ const History = () => {
           </div>
         )}
         {songs.map((song) => (
-          <SongCard key={song.songId} song={song} list={songs} />
+          <SongCard key={song.songId} song={song} list={songs} playIcon />
         ))}
       </div>
     </div>

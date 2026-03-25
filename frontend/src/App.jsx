@@ -14,6 +14,7 @@ import Auth from "./pages/Auth.jsx";
 import Profile from "./pages/Profile.jsx";
 import History from "./pages/History.jsx";
 import Settings from "./pages/Settings.jsx";
+import PlaylistDetails from "./pages/PlaylistDetails.jsx";
 
 const App = () => (
   <div className="min-h-screen relative">
@@ -28,6 +29,7 @@ const App = () => (
       <Route path="/profile" element={<Profile />} />
       <Route path="/history" element={<History />} />
       <Route path="/settings" element={<Settings />} />
+      <Route path="/playlist/:id" element={<PlaylistDetails />} />
     </Routes>
     <Footer />
     <Player />

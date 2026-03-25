@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { usePlayer } from "../context/PlayerContext.jsx";
 
-const SongCard = ({ song, onLike, onAdd, list }) => {
+const SongCard = ({ song, onLike, onAdd, list, playIcon = false }) => {
   const { setCurrentTrack } = usePlayer();
 
   return (
@@ -21,10 +21,17 @@ const SongCard = ({ song, onLike, onAdd, list }) => {
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <button
-          className="px-3 py-2 rounded-full text-xs uppercase tracking-[0.2em] border border-white/10 text-white/70 hover:text-white"
+          className="px-3 py-2 rounded-full text-xs uppercase tracking-[0.2em] border border-white/10 text-white/70 hover:text-white flex items-center justify-center"
           onClick={() => setCurrentTrack(song, list)}
+          aria-label="Play"
         >
-          Play
+          {playIcon ? (
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+              <path d="M7 5v14l12-7z" />
+            </svg>
+          ) : (
+            "Play"
+          )}
         </button>
         {onAdd && (
           <button

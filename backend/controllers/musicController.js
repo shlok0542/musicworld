@@ -1,4 +1,12 @@
-import { searchSongs, getSongById } from "../services/saavnService.js";
+import {
+  searchSongs,
+  searchAlbums,
+  searchPlaylists,
+  searchArtists,
+  searchGlobal,
+  getSongById,
+  getPlaylistById
+} from "../services/saavnService.js";
 
 const pickImage = (images = []) => {
   if (!Array.isArray(images) || images.length === 0) return "";
@@ -22,6 +30,12 @@ const normalizeSong = (item) => ({
   url: pickAudio(item.downloadUrl)
 });
 
+const unwrapResults = (data) => {
+  if (Array.isArray(data?.data?.results)) return data.data.results;
+  if (Array.isArray(data?.data)) return data.data;
+  return [];
+};
+
 export const search = async (req, res, next) => {
   try {
     const query = req.query.q;
@@ -30,8 +44,63 @@ export const search = async (req, res, next) => {
       return res.status(400).json({ message: "Query parameter q is required" });
     }
     const data = await searchSongs(query, page);
-    const results = Array.isArray(data?.data?.results) ? data.data.results : [];
+    const results = unwrapResults(data);
     res.json(results.map(normalizeSong));
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const searchAlbumsController = async (req, res, next) => {
+  try {
+    const query = req.query.q;
+    const page = Number(req.query.page || 1);
+    if (!query) {
+      return res.status(400).json({ message: "Query parameter q is required" });
+    }
+    const data = await searchAlbums(query, page);
+    res.json(unwrapResults(data));
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const searchPlaylistsController = async (req, res, next) => {
+  try {
+    const query = req.query.q;
+    const page = Number(req.query.page || 1);
+    if (!query) {
+      return res.status(400).json({ message: "Query parameter q is required" });
+    }
+    const data = await searchPlaylists(query, page);
+    res.json(unwrapResults(data));
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const searchArtistsController = async (req, res, next) => {
+  try {
+    const query = req.query.q;
+    const page = Number(req.query.page || 1);
+    if (!query) {
+      return res.status(400).json({ message: "Query parameter q is required" });
+    }
+    const data = await searchArtists(query, page);
+    res.json(unwrapResults(data));
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const searchGlobalController = async (req, res, next) => {
+  try {
+    const query = req.query.q;
+    if (!query) {
+      return res.status(400).json({ message: "Query parameter q is required" });
+    }
+    const data = await searchGlobal(query);
+    res.json(unwrapResults(data));
   } catch (err) {
     next(err);
   }
@@ -46,6 +115,29 @@ export const songById = async (req, res, next) => {
       return res.status(404).json({ message: "Song not found" });
     }
     res.json(normalizeSong(song));
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const playlistById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const page = Number(req.query.page || 1);
+    const data = await getPlaylistById(id, page);
+    const playlist = data?.data;
+    if (!playlist) {
+      return res.status(404).json({ message: "Playlist not found" });
+    }
+    const songs = Array.isArray(playlist.songs) ? playlist.songs.map(normalizeSong) : [];
+    res.json({
+      id: playlist.id,
+      name: playlist.name,
+      description: playlist.description || "",
+      image: pickImage(playlist.image),
+      songCount: playlist.songCount || songs.length,
+      songs
+    });
   } catch (err) {
     next(err);
   }

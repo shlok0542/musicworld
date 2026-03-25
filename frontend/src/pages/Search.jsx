@@ -1,29 +1,120 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SongCard from "../components/SongCard.jsx";
 import LoadingSkeleton from "../components/LoadingSkeleton.jsx";
-import { searchSongs } from "../services/musicService.js";
-import { toggleLike } from "../services/userService.js";
-import { normalizeSong } from "../utils/normalizeSong.js";
+import MediaTile from "../components/MediaTile.jsx";
+import {
+  searchSongs,
+  searchAlbums,
+  searchPlaylists,
+  searchArtists,
+  searchGlobal
+} from "../services/musicService.js";
+import {
+  normalizeSong,
+  normalizeAlbum,
+  normalizePlaylist,
+  normalizeArtist,
+  normalizeGlobal
+} from "../utils/normalizeSong.js";
 import { useUI } from "../context/UIContext.jsx";
+import { toggleLike } from "../services/userService.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const chipStyles = "px-3 py-2 rounded-full text-xs uppercase tracking-[0.2em] border border-white/10 text-white/60 hover:text-white";
 
+const filters = [
+  { key: "songs", label: "Songs" },
+  { key: "albums", label: "Albums" },
+  { key: "playlists", label: "Playlists" },
+  { key: "artists", label: "Artists" },
+  { key: "global", label: "Global" }
+];
+
 const Search = () => {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [songs, setSongs] = useState([]);
+  const [media, setMedia] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [filter, setFilter] = useState("songs");
+  const [page, setPage] = useState(1);
+  const [recent, setRecent] = useState([]);
+  const { user, token } = useAuth();
   const { showToast, startLoading, stopLoading } = useUI();
 
-  const runSearch = async (value) => {
+  const historyKey = user?.id ? `mw-search-history-${user.id}` : null;
+
+  useEffect(() => {
+    if (!token || !historyKey) {
+      setRecent([]);
+      return;
+    }
+    try {
+      const stored = JSON.parse(localStorage.getItem(historyKey) || "[]");
+      setRecent(Array.isArray(stored) ? stored : []);
+    } catch {
+      setRecent([]);
+    }
+  }, [token, historyKey]);
+
+  React.useEffect(() => {
+    setPage(1);
+    setSongs([]);
+    setMedia([]);
+  }, [filter]);
+
+  const runSearch = async (value, type = filter, nextPage = 1, append = false) => {
     if (!value.trim()) return;
     setLoading(true);
     setError("");
     startLoading();
     try {
-      const data = await searchSongs(value.trim());
-      const list = Array.isArray(data) ? data : data?.results || [];
-      setSongs(list.map(normalizeSong));
+      if (type === "songs") {
+        const data = await searchSongs(value.trim(), nextPage);
+        const list = Array.isArray(data) ? data : data?.results || [];
+        const normalized = list.map(normalizeSong);
+        setSongs(append ? [...songs, ...normalized] : normalized);
+        setMedia([]);
+      }
+      if (type === "albums") {
+        const data = await searchAlbums(value.trim(), nextPage);
+        const list = Array.isArray(data) ? data : data?.results || [];
+        const normalized = list.map(normalizeAlbum);
+        setMedia(append ? [...media, ...normalized] : normalized);
+        setSongs([]);
+      }
+      if (type === "playlists") {
+        const data = await searchPlaylists(value.trim(), nextPage);
+        const list = Array.isArray(data) ? data : data?.results || [];
+        const normalized = list.map(normalizePlaylist);
+        setMedia(append ? [...media, ...normalized] : normalized);
+        setSongs([]);
+      }
+      if (type === "artists") {
+        const data = await searchArtists(value.trim(), nextPage);
+        const list = Array.isArray(data) ? data : data?.results || [];
+        const normalized = list.map(normalizeArtist);
+        setMedia(append ? [...media, ...normalized] : normalized);
+        setSongs([]);
+      }
+      if (type === "global") {
+        const data = await searchGlobal(value.trim());
+        const list = Array.isArray(data) ? data : data?.results || [];
+        const normalized = list.map(normalizeGlobal);
+        setMedia(normalized);
+        setSongs([]);
+      }
+      setPage(nextPage);
+      if (token && historyKey) {
+        const normalizedQuery = value.trim();
+        setRecent((prev) => {
+          const next = [normalizedQuery, ...prev.filter((q) => q !== normalizedQuery)].slice(0, 6);
+          localStorage.setItem(historyKey, JSON.stringify(next));
+          return next;
+        });
+      }
     } catch (err) {
       setError("Search failed. Try again in a moment.");
       showToast({ type: "error", message: "Search failed." });
@@ -35,12 +126,27 @@ const Search = () => {
 
   const quickSearch = (value) => {
     setQuery(value);
-    runSearch(value);
+    runSearch(value, filter, 1, false);
   };
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    runSearch(query);
+    runSearch(query, filter, 1, false);
+  };
+
+  const handleLoadMore = () => {
+    if (filter === "global") return;
+    runSearch(query, filter, page + 1, true);
+  };
+
+  const handleOpen = (item) => {
+    if (filter === "playlists" || item?.type === "playlist") {
+      navigate(`/playlist/${item.id}`);
+      return;
+    }
+    if (item?.url) {
+      window.open(item.url, "_blank", "noopener,noreferrer");
+    }
   };
 
   return (
@@ -61,6 +167,45 @@ const Search = () => {
           </div>
         </div>
 
+        <div className="mt-4 flex flex-wrap gap-2">
+          {filters.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => setFilter(item.key)}
+              className={`px-4 py-2 rounded-full text-xs uppercase tracking-[0.2em] border ${
+                filter === item.key
+                  ? "border-emerald-300 text-emerald-200"
+                  : "border-white/10 text-white/60 hover:text-white"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        {token && recent.length > 0 && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="text-xs uppercase tracking-[0.3em] text-white/50">Recent</span>
+            {recent.map((item) => (
+              <button key={item} className={chipStyles} onClick={() => quickSearch(item)}>
+                {item}
+              </button>
+            ))}
+            <button
+              type="button"
+              className="px-3 py-2 rounded-full text-xs uppercase tracking-[0.2em] border border-white/10 text-white/60 hover:text-white"
+              onClick={() => {
+                if (historyKey) {
+                  localStorage.removeItem(historyKey);
+                }
+                setRecent([]);
+              }}
+            >
+              Clear
+            </button>
+          </div>
+        )}
+
         <form onSubmit={handleSearch} className="mt-6 flex flex-col md:flex-row gap-4">
           <input
             value={query}
@@ -78,7 +223,7 @@ const Search = () => {
 
       <div className="mt-6 grid gap-4">
         {loading && Array.from({ length: 4 }).map((_, idx) => <LoadingSkeleton key={idx} />)}
-        {!loading && songs.length === 0 && (
+        {!loading && songs.length === 0 && media.length === 0 && (
           <div className="glass rounded-2xl p-6 text-center text-white/60">
             Start searching to see results here.
           </div>
@@ -100,6 +245,26 @@ const Search = () => {
             />
           ))}
       </div>
+
+      {!loading && media.length > 0 && (
+        <div className="mt-6">
+          <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
+            {media.map((item) => (
+              <MediaTile key={`${item.id}-${item.title}`} item={item} list={media} type={filter} onOpen={() => handleOpen(item)} />
+            ))}
+          </div>
+          {filter !== "global" && (
+            <div className="mt-4">
+              <button
+                className="glass rounded-2xl px-5 py-3 text-xs uppercase tracking-[0.3em] text-white/60 hover:text-white"
+                onClick={handleLoadMore}
+              >
+                Load More
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
