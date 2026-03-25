@@ -19,3 +19,8 @@ export const removeSongFromPlaylist = async (playlistId, songId) => {
   const { data } = await api.delete(`/playlists/${playlistId}/songs/${songId}`);
   return data;
 };
+
+export const deletePlaylist = async (playlistId) => {
+  const { data } = await api.delete(`/playlists/${playlistId}`);
+  return data;
+};

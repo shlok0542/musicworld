@@ -3,11 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import ThemeToggle from "../components/ThemeToggle.jsx";
 import { usePlayer } from "../context/PlayerContext.jsx";
+import { useTheme } from "../context/ThemeContext.jsx";
+import { updateProfile } from "../services/userService.js";
+import { useUI } from "../context/UIContext.jsx";
 
 const Settings = () => {
   const { token } = useAuth();
   const navigate = useNavigate();
   const { quality, dataSaver, setQuality, setDataSaver } = usePlayer();
+  const { theme } = useTheme();
+  const { showToast } = useUI();
+  const saveTimer = React.useRef(null);
 
   React.useEffect(() => {
     if (!token) {
@@ -15,7 +21,24 @@ const Settings = () => {
     }
   }, [token]);
 
-  // settings are persisted via PlayerContext
+  React.useEffect(() => {
+    if (!token) return;
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+    }
+    saveTimer.current = setTimeout(async () => {
+      try {
+        const updated = await updateProfile({
+          settings: { theme, quality, dataSaver }
+        });
+        localStorage.setItem("mw-user", JSON.stringify(updated));
+        showToast({ type: "success", message: "Settings saved." });
+      } catch {
+        showToast({ type: "error", message: "Unable to save settings." });
+      }
+    }, 500);
+    return () => clearTimeout(saveTimer.current);
+  }, [theme, quality, dataSaver, token, showToast]);
 
   if (!token) return null;
 

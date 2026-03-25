@@ -62,3 +62,16 @@ export const removeSongFromPlaylist = async (req, res, next) => {
     next(err);
   }
 };
+
+export const deletePlaylist = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const playlist = await Playlist.findOneAndDelete({ _id: id, userId: req.user.id });
+    if (!playlist) {
+      return res.status(404).json({ message: "Playlist not found" });
+    }
+    res.json({ message: "Playlist deleted", id });
+  } catch (err) {
+    next(err);
+  }
+};

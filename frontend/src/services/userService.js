@@ -10,6 +10,11 @@ export const addHistory = async (song) => {
   return data;
 };
 
+export const clearHistory = async () => {
+  const { data } = await api.delete("/users/history");
+  return data;
+};
+
 export const getProfile = async () => {
   const { data } = await api.get("/users/me");
   return data;

@@ -28,7 +28,13 @@ export const signup = async (req, res, next) => {
     const token = createToken(user);
     res.status(201).json({
       token,
-      user: { id: user._id, name: user.name, email: user.email }
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar || "",
+        settings: user.settings || {}
+      }
     });
   } catch (err) {
     next(err);
@@ -55,7 +61,13 @@ export const login = async (req, res, next) => {
     const token = createToken(user);
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email }
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar || "",
+        settings: user.settings || {}
+      }
     });
   } catch (err) {
     next(err);

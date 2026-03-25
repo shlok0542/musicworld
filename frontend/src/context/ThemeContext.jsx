@@ -6,6 +6,18 @@ export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
+    const storedUser = localStorage.getItem("mw-user");
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        if (parsed?.settings?.theme) {
+          setTheme(parsed.settings.theme);
+          return;
+        }
+      } catch {
+        undefined;
+      }
+    }
     const stored = localStorage.getItem("mw-theme");
     if (stored) {
       setTheme(stored);

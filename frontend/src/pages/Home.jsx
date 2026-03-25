@@ -124,7 +124,7 @@ const Home = () => {
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight mt-4">
             Fresh drops. Instant play.
           </h1>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-row flex-wrap gap-3">
             <button
               className="px-5 py-3 rounded-full bg-emerald-400 text-slate-900 font-semibold"
               onClick={handleStart}
@@ -142,7 +142,7 @@ const Home = () => {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass rounded-[32px] p-6"
+          className="hidden md:block glass rounded-[32px] p-6"
         >
           <p className="text-sm text-white/70">Latest Drops</p>
           <div className="mt-4 space-y-4">

@@ -81,7 +81,7 @@ const Player = () => {
         addHistory(currentTrack).catch(() => undefined);
       }
     }
-  }, [currentTrack]);
+  }, [currentTrack, quality, dataSaver]);
 
   useEffect(() => {
     if (!audioRef.current) return;

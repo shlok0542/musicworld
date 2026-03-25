@@ -85,6 +85,17 @@ export const PlayerProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    const storedUser = localStorage.getItem("mw-user");
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser);
+        if (parsed?.settings?.quality) setQuality(parsed.settings.quality);
+        if (typeof parsed?.settings?.dataSaver === "boolean") setDataSaver(parsed.settings.dataSaver);
+        return;
+      } catch {
+        undefined;
+      }
+    }
     const storedQuality = localStorage.getItem("mw-audio-quality");
     const storedSaver = localStorage.getItem("mw-data-saver");
     if (storedQuality) setQuality(storedQuality);

@@ -161,13 +161,13 @@ const Search = () => {
   return (
     <div className="px-4 sm:px-6 lg:px-10 pb-36">
       <div className="glass rounded-3xl p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Search</p>
             <h2 className="text-2xl md:text-3xl font-semibold mt-2">Find your next obsession.</h2>
             <p className="text-white/70 mt-1 text-sm">Search songs, artists, or moods in seconds.</p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2 overflow-x-auto pb-1">
             {["Workout", "Chill", "Love", "Party"].map((tag) => (
               <button key={tag} className={chipStyles} onClick={() => quickSearch(tag)}>
                 {tag}
@@ -176,20 +176,30 @@ const Search = () => {
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          {filters.map((item) => (
-            <button
-              key={item.key}
-              onClick={() => setFilter(item.key)}
-              className={`px-4 py-2 rounded-full text-xs uppercase tracking-[0.2em] border ${
-                filter === item.key
-                  ? "border-emerald-300 text-emerald-200"
-                  : "border-white/10 text-white/60 hover:text-white"
-              }`}
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-3">
+          <span className="text-xs uppercase tracking-[0.3em] text-white/50">Search by</span>
+          <div className="relative">
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="appearance-none w-full sm:w-auto bg-slate-950/80 border border-white/10 rounded-full px-4 py-2 pr-10 text-xs uppercase tracking-[0.2em] text-white/80 focus:outline-none focus:border-emerald-300"
             >
-              {item.label}
-            </button>
-          ))}
+              {filters.map((item) => (
+                <option key={item.key} value={item.key} className="bg-slate-950 text-white">
+                  {item.label}
+                </option>
+              ))}
+            </select>
+            <svg
+              viewBox="0 0 24 24"
+              className="pointer-events-none h-4 w-4 text-white/60 absolute right-3 top-1/2 -translate-y-1/2"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </div>
         </div>
 
         {token && recent.length > 0 && (

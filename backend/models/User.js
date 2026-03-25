@@ -19,7 +19,12 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     avatar: { type: String, default: "" },
     likedSongs: { type: [SongSchema], default: [] },
-    history: { type: [SongSchema], default: [] }
+    history: { type: [SongSchema], default: [] },
+    settings: {
+      theme: { type: String, default: "dark" },
+      quality: { type: String, default: "160kbps" },
+      dataSaver: { type: Boolean, default: false }
+    }
   },
   { timestamps: true }
 );

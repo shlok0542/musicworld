@@ -19,22 +19,24 @@ import Settings from "./pages/Settings.jsx";
 import PlaylistDetails from "./pages/PlaylistDetails.jsx";
 
 const App = () => (
-  <div className="min-h-screen relative">
+  <div className="min-h-screen relative flex flex-col">
     <Backdrop />
     <Navbar />
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/search" element={<Search />} />
-      <Route path="/playlists" element={<Playlists />} />
-      <Route path="/library/favorites" element={<Favorites />} />
-      <Route path="/library/playlists" element={<LibraryPlaylists />} />
-      <Route path="/player" element={<PlayerView />} />
-      <Route path="/auth" element={<Auth />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/history" element={<History />} />
-      <Route path="/settings" element={<Settings />} />
-      <Route path="/playlist/:id" element={<PlaylistDetails />} />
-    </Routes>
+    <main className="flex-1">
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/playlists" element={<Playlists />} />
+        <Route path="/library/favorites" element={<Favorites />} />
+        <Route path="/library/playlists" element={<LibraryPlaylists />} />
+        <Route path="/player" element={<PlayerView />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/history" element={<History />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/playlist/:id" element={<PlaylistDetails />} />
+      </Routes>
+    </main>
     <Footer />
     <Player />
     <ToastContainer />

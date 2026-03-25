@@ -48,6 +48,7 @@ const Favorites = () => {
               song={song}
               list={likedSongs}
               playIcon
+              likeIcon
               onLike={async () => {
                 try {
                   await toggleLike(song);

@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { usePlayer } from "../context/PlayerContext.jsx";
 
-const SongCard = ({ song, onLike, onAdd, list, playIcon = false }) => {
+const SongCard = ({ song, onLike, onAdd, list, playIcon = false, likeIcon = false, addIcon = false }) => {
   const { setCurrentTrack } = usePlayer();
 
   return (
@@ -38,7 +38,13 @@ const SongCard = ({ song, onLike, onAdd, list, playIcon = false }) => {
             className="px-3 py-2 rounded-full text-xs uppercase tracking-[0.2em] border border-white/10 text-white/70 hover:text-white"
             onClick={() => onAdd(song)}
           >
-            Add
+            {addIcon ? (
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            ) : (
+              "Add"
+            )}
           </button>
         )}
         {onLike && (
@@ -46,7 +52,13 @@ const SongCard = ({ song, onLike, onAdd, list, playIcon = false }) => {
             className="px-3 py-2 rounded-full text-xs uppercase tracking-[0.2em] border border-white/10 text-white/70 hover:text-white"
             onClick={() => onLike(song)}
           >
-            Like
+            {likeIcon ? (
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />
+              </svg>
+            ) : (
+              "Like"
+            )}
           </button>
         )}
       </div>

@@ -11,10 +11,18 @@ export const getProfile = async (req, res, next) => {
 
 export const updateProfile = async (req, res, next) => {
   try {
-    const { name, avatar } = req.body;
+    const { name, avatar, settings } = req.body;
     const update = {};
     if (typeof name === "string" && name.trim()) update.name = name.trim();
     if (typeof avatar === "string") update.avatar = avatar.trim();
+    if (settings && typeof settings === "object") {
+      const nextSettings = {};
+      if (typeof settings.theme === "string") nextSettings["settings.theme"] = settings.theme;
+      if (typeof settings.quality === "string") nextSettings["settings.quality"] = settings.quality;
+      if (typeof settings.dataSaver === "boolean")
+        nextSettings["settings.dataSaver"] = settings.dataSaver;
+      Object.assign(update, nextSettings);
+    }
     const user = await User.findByIdAndUpdate(req.user.id, update, {
       new: true
     }).select("-password");
@@ -56,6 +64,17 @@ export const addHistory = async (req, res, next) => {
     user.history = user.history.slice(0, 50);
     await user.save();
     res.json({ history: user.history });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const clearHistory = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    user.history = [];
+    await user.save();
+    res.json({ history: [] });
   } catch (err) {
     next(err);
   }
