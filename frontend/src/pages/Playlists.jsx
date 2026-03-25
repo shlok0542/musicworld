@@ -5,14 +5,19 @@ import { createPlaylist, fetchPlaylists, addSongToPlaylist } from "../services/p
 import { searchSongs } from "../services/musicService.js";
 import { normalizeSong } from "../utils/normalizeSong.js";
 import { useUI } from "../context/UIContext.jsx";
+import { toggleLike } from "../services/userService.js";
+import { getProfile } from "../services/userService.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const Playlists = () => {
   const [playlists, setPlaylists] = useState([]);
+  const [likedSongs, setLikedSongs] = useState([]);
   const [name, setName] = useState("");
   const [active, setActive] = useState(null);
   const [search, setSearch] = useState("");
   const [songs, setSongs] = useState([]);
   const { showToast, startLoading, stopLoading } = useUI();
+  const { token } = useAuth();
 
   const loadPlaylists = async () => {
     try {
@@ -26,6 +31,16 @@ const Playlists = () => {
   useEffect(() => {
     loadPlaylists();
   }, []);
+
+  useEffect(() => {
+    if (!token) {
+      setLikedSongs([]);
+      return;
+    }
+    getProfile()
+      .then((profile) => setLikedSongs(profile?.likedSongs || []))
+      .catch(() => undefined);
+  }, [token]);
 
   const handleCreate = async () => {
     if (!name.trim()) return;
@@ -94,6 +109,37 @@ const Playlists = () => {
             />
           ))}
         </div>
+
+        {token && (
+          <div className="mt-8">
+            <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Liked Songs</p>
+            <h3 className="text-xl font-semibold mt-2">Your favorites</h3>
+            <div className="mt-4 grid gap-4">
+              {likedSongs.length === 0 && (
+                <div className="glass rounded-2xl p-6 text-center text-white/60">
+                  No liked songs yet. Tap the heart to save tracks.
+                </div>
+              )}
+              {likedSongs.map((song) => (
+                <SongCard
+                  key={song.songId}
+                  song={song}
+                  list={likedSongs}
+                  playIcon
+                  onLike={async () => {
+                    try {
+                      await toggleLike(song);
+                      setLikedSongs((prev) => prev.filter((s) => s.songId !== song.songId));
+                      showToast({ type: "success", message: "Removed from favorites." });
+                    } catch {
+                      showToast({ type: "error", message: "Unable to remove song." });
+                    }
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="glass rounded-3xl p-6">

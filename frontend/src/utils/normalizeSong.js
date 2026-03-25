@@ -15,6 +15,13 @@ export const pickAudio = (downloadUrl, fallback) => {
   return "";
 };
 
+export const pickAudioByQuality = (downloadUrl, quality) => {
+  if (!Array.isArray(downloadUrl) || downloadUrl.length === 0) return "";
+  const match = downloadUrl.find((d) => d.quality === quality);
+  if (match?.url) return match.url;
+  return downloadUrl[downloadUrl.length - 1]?.url || "";
+};
+
 export const normalizeSong = (item) => ({
   songId: item.songId || item.song_id || item.id,
   title: item.title || item.song_name || item.name,
@@ -26,7 +33,8 @@ export const normalizeSong = (item) => ({
       : ""),
   image: pickImage(item.image || item.song_image),
   duration: Number(item.duration || item.song_duration || 0),
-  url: pickAudio(item.downloadUrl || item.download_links, item.url)
+  url: pickAudio(item.downloadUrl || item.download_links, item.url),
+  downloads: item.downloadUrl || item.download_links || []
 });
 
 export const normalizeAlbum = (item) => ({

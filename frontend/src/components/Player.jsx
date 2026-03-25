@@ -4,6 +4,8 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useUI } from "../context/UIContext.jsx";
 import { addHistory, toggleLike } from "../services/userService.js";
 import { fetchPlaylists, addSongToPlaylist } from "../services/playlistService.js";
+import { searchSongs } from "../services/musicService.js";
+import { normalizeSong } from "../utils/normalizeSong.js";
 
 const formatTime = (value) => {
   if (!value || Number.isNaN(value)) return "0:00";
@@ -31,6 +33,7 @@ const Player = () => {
   const {
     audioRef,
     currentTrack,
+    currentIndex,
     isPlaying,
     volume,
     progress,
@@ -38,6 +41,10 @@ const Player = () => {
     shuffle,
     repeatMode,
     queue,
+    setQueue,
+    setCurrentIndex,
+    quality,
+    dataSaver,
     setIsPlaying,
     setProgress,
     setDuration,
@@ -54,10 +61,17 @@ const Player = () => {
   const [muted, setMuted] = useState(false);
   const [playlists, setPlaylists] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [loadingRelated, setLoadingRelated] = useState(false);
+  const [radioLabel, setRadioLabel] = useState("");
 
   useEffect(() => {
     if (!currentTrack || !audioRef.current) return;
-    audioRef.current.src = currentTrack.url || "";
+    const desiredQuality = dataSaver ? "64kbps" : quality;
+    const source =
+      currentTrack.downloads?.find((d) => d.quality === desiredQuality)?.url ||
+      currentTrack.url ||
+      "";
+    audioRef.current.src = source;
     audioRef.current.load();
     setProgress(0);
     setDuration(0);
@@ -102,11 +116,36 @@ const Player = () => {
     setDuration(audioRef.current.duration || 0);
   };
 
-  const onEnded = () => {
+  const onEnded = async () => {
     if (repeatMode === "one" && audioRef.current) {
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(() => setIsPlaying(false));
       return;
+    }
+    const atEnd = currentIndex >= queue.length - 1;
+    if (repeatMode === "off" && (queue.length <= 1 || atEnd)) {
+      if (loadingRelated) return;
+      setLoadingRelated(true);
+      try {
+        const query = currentTrack?.artist || currentTrack?.title || "";
+        if (query) {
+          const data = await searchSongs(query, 1);
+          const list = Array.isArray(data) ? data : data?.results || [];
+          const related = list.map(normalizeSong).filter((s) => s.songId !== currentTrack.songId);
+          if (related.length > 0) {
+            const randomIndex = Math.floor(Math.random() * related.length);
+            setQueue(related);
+            setCurrentIndex(randomIndex);
+            setIsPlaying(true);
+            setRadioLabel("Related Radio");
+            return;
+          }
+        }
+      } catch {
+        undefined;
+      } finally {
+        setLoadingRelated(false);
+      }
     }
     next();
   };
@@ -207,6 +246,11 @@ const Player = () => {
                 <p className="text-xs text-white/60 truncate">
                   {currentTrack?.artist || "Let the vibe guide you"}
                 </p>
+                {radioLabel && (
+                  <span className="mt-1 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-emerald-300">
+                    {radioLabel}
+                  </span>
+                )}
               </div>
             </div>
 

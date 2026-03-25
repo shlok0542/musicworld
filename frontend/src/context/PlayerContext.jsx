@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 const PlayerContext = createContext(null);
 
@@ -14,6 +14,8 @@ export const PlayerProvider = ({ children }) => {
   const [repeatMode, setRepeatMode] = useState("off");
 
   const currentTrack = currentIndex >= 0 ? queue[currentIndex] : null;
+  const [quality, setQuality] = useState("320kbps");
+  const [dataSaver, setDataSaver] = useState(false);
 
   const setCurrentTrack = (track, list = []) => {
     if (!track) return;
@@ -82,6 +84,21 @@ export const PlayerProvider = ({ children }) => {
     });
   };
 
+  useEffect(() => {
+    const storedQuality = localStorage.getItem("mw-audio-quality");
+    const storedSaver = localStorage.getItem("mw-data-saver");
+    if (storedQuality) setQuality(storedQuality);
+    if (storedSaver) setDataSaver(storedSaver === "true");
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("mw-audio-quality", quality);
+  }, [quality]);
+
+  useEffect(() => {
+    localStorage.setItem("mw-data-saver", String(dataSaver));
+  }, [dataSaver]);
+
   const value = useMemo(
     () => ({
       audioRef,
@@ -94,6 +111,8 @@ export const PlayerProvider = ({ children }) => {
       duration,
       shuffle,
       repeatMode,
+      quality,
+      dataSaver,
       setQueue,
       setCurrentIndex,
       setCurrentTrack,
@@ -103,6 +122,8 @@ export const PlayerProvider = ({ children }) => {
       setDuration,
       setShuffle,
       setRepeatMode,
+      setQuality,
+      setDataSaver,
       togglePlay,
       cycleRepeat,
       next,
@@ -117,7 +138,9 @@ export const PlayerProvider = ({ children }) => {
       progress,
       duration,
       shuffle,
-      repeatMode
+      repeatMode,
+      quality,
+      dataSaver
     ]
   );
 
