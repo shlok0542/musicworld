@@ -193,7 +193,7 @@ const Navbar = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-10 py-4 transition-all duration-300 ${
+      className={`sticky top-0 z-50 relative flex items-center justify-between gap-3 px-4 sm:px-6 lg:px-10 py-4 transition-all duration-300 ${
         isScrolled
           ? "bg-[#0b0a12]/55 backdrop-blur-xl border-b border-white/10 shadow-[0_8px_30px_rgba(7,4,14,0.22)]"
           : "bg-transparent border-b border-transparent"
@@ -218,16 +218,21 @@ const Navbar = () => {
             }}
           />
         )}
-        <div className="flex items-center gap-3">
-          <img
-            src="/logo.png"
-            alt="MusicWorlds"
-            className="h-10 w-10 rounded-2xl object-cover shadow-glow"
-          />
-          <div className="hidden sm:block">
-            <p className="text-lg font-semibold">MusicWorlds</p>
-            <p className="text-xs text-white/60">Immersive streaming</p>
-          </div>
+      </div>
+
+      <div
+        className={`absolute flex items-center gap-3 ${
+          isLoggedIn ? "left-1/2 -translate-x-1/2" : "left-4 sm:left-6 lg:left-10"
+        }`}
+      >
+        <img
+          src="/logo.png"
+          alt="MusicWorlds"
+          className="h-10 w-10 rounded-2xl object-cover shadow-glow"
+        />
+        <div className="hidden sm:block">
+          <p className="text-lg font-semibold">MusicWorlds</p>
+          <p className="text-xs text-white/60">Immersive streaming</p>
         </div>
       </div>
 
