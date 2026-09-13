@@ -17,7 +17,7 @@ const PlayerView = () => {
               alt="album"
               className="h-52 w-52 sm:h-60 sm:w-60 md:h-80 md:w-80 rounded-full object-cover border border-white/20 shadow-glow animate-spin-slow"
             />
-            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-400/30 to-cyan-400/10 blur-3xl" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-violet-500/40 to-pink-500/25 blur-3xl" />
           </div>
         </div>
         <div className="min-w-0">

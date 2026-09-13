@@ -19,7 +19,7 @@ const MenuButton = ({ onClick, open }) => (
 );
 
 const MenuPanel = ({ onClose, isLoggedIn, onLogin, onLogout }) => (
-  <div className="menu-panel absolute left-1 mt-3 w-64 rounded-2xl p-4 shadow-glass z-50 border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950">
+  <div className="menu-panel absolute left-1 mt-3 w-64 rounded-2xl p-4 shadow-glass z-50 border border-white/10 bg-gradient-to-br from-[#17151f] via-[#231f2e] to-[#4a1b62]">
     <div className="flex items-center justify-between">
       <p className="text-xs uppercase tracking-[0.3em] text-white/50">Quick Menu</p>
       <button
@@ -177,7 +177,7 @@ const Navbar = () => {
       <div className="flex items-center justify-end gap-3">
         <form
           onSubmit={handleSearch}
-          className="nav-search hidden sm:flex items-center gap-3 rounded-full px-4 py-2 border border-white/10 bg-gradient-to-r from-slate-950 via-slate-900 to-emerald-950 shadow-glow"
+          className="nav-search hidden sm:flex items-center gap-3 rounded-full px-4 py-2 border border-white/10 bg-gradient-to-r from-[#17151f] via-[#231f2e] to-[#4a1b62] shadow-glow"
         >
           <div className="h-8 w-8 rounded-full bg-emerald-400/15 text-emerald-200 flex items-center justify-center">
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">

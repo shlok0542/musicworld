@@ -63,7 +63,7 @@ const Auth = () => {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-[32px] p-[1px] bg-gradient-to-br from-emerald-400/40 via-cyan-400/10 to-slate-900/10 shadow-glow"
+          className="rounded-[32px] p-[1px] bg-gradient-to-br from-violet-500/50 via-fuchsia-500/25 to-pink-500/15 shadow-glow"
         >
           <div className="glass rounded-[32px] p-6">
             <div className="flex items-center gap-2 bg-slate-950/60 rounded-full p-1 border border-white/10 auth-tabs">
