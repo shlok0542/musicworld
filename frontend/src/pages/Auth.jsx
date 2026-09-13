@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { login, signup } from "../services/authService.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useUI } from "../context/UIContext.jsx";
 
 const Auth = () => {
-  const [mode, setMode] = useState("login");
+  const location = useLocation();
+  const [mode, setMode] = useState(() =>
+    new URLSearchParams(location.search).get("mode") === "signup" ? "signup" : "login"
+  );
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -38,7 +41,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-10 pb-36">
+    <div className="px-4 sm:px-6 lg:px-10 pb-36 pt-10">
       <div className="max-w-6xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-6 md:gap-10 items-center">
         <div className="hidden lg:block">
           <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">MusicWorlds</p>
@@ -48,16 +51,6 @@ const Auth = () => {
           <p className="text-white/70 mt-4">
             Save playlists, sync likes, and jump back into your latest sessions across devices.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            {["Stream personal rooms", "Build neon playlists", "Sync your history"].map((tag) => (
-              <span
-                key={tag}
-                className="px-4 py-2 rounded-full border border-white/10 text-xs uppercase tracking-[0.3em] text-white/60"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
         </div>
 
         <motion.div

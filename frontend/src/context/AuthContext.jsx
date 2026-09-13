@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("mw-token");
@@ -26,7 +27,10 @@ export const AuthProvider = ({ children }) => {
           setUser(null);
           localStorage.removeItem("mw-token");
           localStorage.removeItem("mw-user");
-        });
+        })
+        .finally(() => setReady(true));
+    } else {
+      setReady(true);
     }
   }, []);
 
@@ -44,7 +48,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("mw-user");
   };
 
-  const value = useMemo(() => ({ user, token, login, logout }), [user, token]);
+  const value = useMemo(() => ({ user, token, ready, login, logout }), [user, token, ready]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -36,7 +36,8 @@ const Home = () => {
       items: [],
       page: 1,
       loading: true,
-      loadingMore: false
+      loadingMore: false,
+      unavailable: false
     }))
   );
 
@@ -74,7 +75,8 @@ const Home = () => {
                 items: replace ? normalized : [...item.items, ...normalized],
                 page,
                 loading: false,
-                loadingMore: false
+                loadingMore: false,
+                unavailable: false
               }
             : item
         )
@@ -82,7 +84,7 @@ const Home = () => {
     } catch {
       setSections((prev) =>
         prev.map((item, idx) =>
-          idx === index ? { ...item, loading: false, loadingMore: false } : item
+          idx === index ? { ...item, loading: false, loadingMore: false, unavailable: true } : item
         )
       );
     }
@@ -117,28 +119,9 @@ const Home = () => {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-10 pb-44">
+    <div className="px-4 sm:px-6 lg:px-10 pt-7 md:pt-10 pb-12">
       <section className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6 md:gap-8 items-center">
-        <div>
-          <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">MusicWorlds</p>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight mt-4">
-            Fresh drops. Instant play.
-          </h1>
-          <div className="mt-6 flex flex-row flex-wrap gap-3">
-            <button
-              className="px-5 py-3 rounded-full bg-emerald-400 text-slate-900 font-semibold"
-              onClick={handleStart}
-            >
-              Start Listening
-            </button>
-            <button
-              className="px-5 py-3 rounded-full border border-white/15 text-white/80"
-              onClick={() => navigate("/playlists")}
-            >
-              Build a Playlist
-            </button>
-          </div>
-        </div>
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -146,12 +129,19 @@ const Home = () => {
         >
           <p className="text-sm text-white/70">Latest Drops</p>
           <div className="mt-4 space-y-4">
-            {heroSongs.length === 0 && (
-              <div className="text-xs text-white/50">Loading highlights...</div>
-            )}
-            {heroSongs.map((song) => (
-              <SongCard key={song.songId} song={song} list={heroSongs} />
-            ))}
+            {heroSongs.length === 0
+              ? Array.from({ length: 2 }).map((_, index) => (
+                  <div key={index} className="flex gap-4 items-center animate-pulse">
+                    <div className="h-14 w-14 shrink-0 rounded-2xl bg-white/10" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 w-3/4 rounded bg-white/10" />
+                      <div className="h-3 w-1/2 rounded bg-white/10" />
+                    </div>
+                  </div>
+                ))
+              : heroSongs.map((song) => (
+                  <SongCard key={song.songId} song={song} list={heroSongs} />
+                ))}
           </div>
         </motion.div>
       </section>
@@ -159,27 +149,25 @@ const Home = () => {
       <section id="discover" className="mt-10 md:mt-12 space-y-10">
         {sections.map((section, index) => (
           <div key={section.title}>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
               <h2 className="text-xl font-semibold">{section.title}</h2>
+              <span className="h-px flex-1 bg-gradient-to-r from-violet-400/40 to-transparent" />
             </div>
-            <div className="mt-4 flex gap-4 overflow-x-auto scrollbar-hide pb-2">
-              {section.loading &&
+            <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+              {(section.loading || section.unavailable || section.items.length === 0) &&
                 Array.from({ length: 6 }).map((_, idx) => (
                   <div
                     key={idx}
-                    className="glass rounded-2xl p-3 min-w-[180px] max-w-[200px] animate-pulse"
+                    className="glass rounded-2xl p-3 animate-pulse"
                   >
-                    <div className="h-36 w-full rounded-xl bg-white/10" />
+                    <div className="aspect-square w-full rounded-xl bg-white/10" />
                     <div className="mt-3 space-y-2">
                       <div className="h-3 w-3/4 bg-white/10 rounded" />
                       <div className="h-3 w-1/2 bg-white/10 rounded" />
                     </div>
                   </div>
                 ))}
-              {!section.loading && section.items.length === 0 && (
-                <div className="text-sm text-white/50">No items loaded.</div>
-              )}
-              {!section.loading &&
+              {!section.loading && !section.unavailable &&
                 section.items.map((item) => (
                   <MediaTile
                     key={`${section.title}-${item.id}`}
@@ -187,18 +175,19 @@ const Home = () => {
                     list={section.items}
                     type={section.type}
                     onOpen={() => handleOpen(item, section.type)}
+                    variant="grid"
                   />
                 ))}
-              {!section.loading && section.type !== "global" && (
-                <button
-                  className="glass rounded-2xl px-5 py-4 min-w-[160px] text-xs uppercase tracking-[0.3em] text-white/60 hover:text-white"
-                  onClick={() => loadSection(index, section.page + 1, false)}
-                  disabled={section.loadingMore}
-                >
-                  {section.loadingMore ? "Loading..." : "Load More"}
-                </button>
-              )}
             </div>
+            {!section.loading && !section.unavailable && section.items.length > 0 && section.type !== "global" && (
+              <button
+                className="mt-5 rounded-full border border-white/10 px-5 py-2.5 text-xs uppercase tracking-[0.25em] text-white/60 transition hover:border-violet-300/60 hover:text-white"
+                onClick={() => loadSection(index, section.page + 1, false)}
+                disabled={section.loadingMore}
+              >
+                {section.loadingMore ? "Loading..." : "Explore More"}
+              </button>
+            )}
           </div>
         ))}
       </section>

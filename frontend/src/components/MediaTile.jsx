@@ -4,12 +4,13 @@ import { usePlayer } from "../context/PlayerContext.jsx";
 import { useUI } from "../context/UIContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
-const MediaTile = ({ item, list, type = "song", onOpen }) => {
+const MediaTile = ({ item, list, type = "song", onOpen, variant = "carousel" }) => {
   const { setCurrentTrack } = usePlayer();
   const { showToast } = useUI();
   const { user, token } = useAuth();
   const canPlay = type === "song" && item.url;
   const canSavePlaylist = type === "playlist";
+  const isGrid = variant === "grid";
   const storageKey = useMemo(
     () => (user?._id ? `mw-saved-playlists-${user._id}` : null),
     [user?._id]
@@ -57,8 +58,11 @@ const MediaTile = ({ item, list, type = "song", onOpen }) => {
 
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      className="glass rounded-2xl p-3 min-w-[150px] sm:min-w-[180px] max-w-[200px] flex flex-col gap-3 relative"
+      whileHover={{ y: -6, scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 320, damping: 22 }}
+      className={`glass group rounded-2xl p-3 flex flex-col gap-3 relative ${
+        isGrid ? "w-full min-w-0 max-w-none" : "min-w-[150px] sm:min-w-[180px] max-w-[200px]"
+      }`}
     >
       {canSavePlaylist && (
         <button
@@ -78,7 +82,13 @@ const MediaTile = ({ item, list, type = "song", onOpen }) => {
           )}
         </button>
       )}
-      <img src={item.image} alt={item.title} className="h-32 sm:h-36 w-full rounded-xl object-cover" />
+      <div className={`overflow-hidden rounded-xl ${isGrid ? "aspect-square" : "h-32 sm:h-36"}`}>
+        <img
+          src={item.image}
+          alt={item.title}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-white truncate">{item.title}</p>
         <p className="text-xs text-white/60 truncate">{item.subtitle}</p>

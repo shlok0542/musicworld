@@ -3,11 +3,10 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Backdrop from "./components/Backdrop.jsx";
 import Player from "./components/Player.jsx";
-import Footer from "./components/Footer.jsx";
 import ToastContainer from "./components/ToastContainer.jsx";
 import LoaderOverlay from "./components/LoaderOverlay.jsx";
+import WelcomePrompt from "./components/WelcomePrompt.jsx";
 import Home from "./pages/Home.jsx";
-import Search from "./pages/Search.jsx";
 import Playlists from "./pages/Playlists.jsx";
 import Favorites from "./pages/Favorites.jsx";
 import LibraryPlaylists from "./pages/LibraryPlaylists.jsx";
@@ -25,7 +24,6 @@ const App = () => (
     <main className="flex-1">
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/search" element={<Search />} />
         <Route path="/playlists" element={<Playlists />} />
         <Route path="/library/favorites" element={<Favorites />} />
         <Route path="/library/playlists" element={<LibraryPlaylists />} />
@@ -37,10 +35,10 @@ const App = () => (
         <Route path="/playlist/:id" element={<PlaylistDetails />} />
       </Routes>
     </main>
-    <Footer />
     <Player />
     <ToastContainer />
     <LoaderOverlay />
+    <WelcomePrompt />
   </div>
 );
 
