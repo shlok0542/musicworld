@@ -50,7 +50,7 @@ const MenuPanel = ({ onClose, isLoggedIn, onLogin, onLogout, onAccount, open }) 
               Account
             </span>
           </button>
-          <NavLink to="/playlists" onClick={onClose} className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
+          <NavLink to="/library/favorites" onClick={onClose} className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
             <span className="inline-flex items-center gap-2">
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 6h16M4 12h16M4 18h10" />

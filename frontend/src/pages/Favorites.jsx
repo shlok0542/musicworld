@@ -32,10 +32,8 @@ const Favorites = () => {
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-10 pb-36">
-      <div className="glass rounded-3xl p-6">
-        <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Favorites</p>
-        <h2 className="text-2xl md:text-3xl font-semibold mt-2">Your liked songs</h2>
+    
+      <div className="glass w-full min-w-0 rounded-3xl p-4 sm:p-6">
         <div className="mt-6 grid gap-4">
           {likedSongs.length === 0 && (
             <div className="glass rounded-2xl p-6 text-center text-white/60">
@@ -47,8 +45,6 @@ const Favorites = () => {
               key={song.songId}
               song={song}
               list={likedSongs}
-              playIcon
-              likeIcon
               onLike={async () => {
                 try {
                   await toggleLike(song);
@@ -62,7 +58,7 @@ const Favorites = () => {
           ))}
         </div>
       </div>
-    </div>
+    
   );
 };
 

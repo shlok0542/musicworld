@@ -79,3 +79,14 @@ export const clearHistory = async (req, res, next) => {
     next(err);
   }
 };
+
+export const deleteHistorySong = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    user.history = user.history.filter((song) => song.songId !== req.params.songId);
+    await user.save();
+    res.json({ history: user.history });
+  } catch (err) {
+    next(err);
+  }
+};

@@ -7,7 +7,6 @@ import ToastContainer from "./components/ToastContainer.jsx";
 import LoaderOverlay from "./components/LoaderOverlay.jsx";
 import WelcomePrompt from "./components/WelcomePrompt.jsx";
 import Home from "./pages/Home.jsx";
-import Playlists from "./pages/Playlists.jsx";
 import Favorites from "./pages/Favorites.jsx";
 import PlayerView from "./pages/PlayerView.jsx";
 import Auth from "./pages/Auth.jsx";
@@ -23,7 +22,6 @@ const App = () => (
     <main className="flex-1">
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/playlists" element={<Playlists />} />
         <Route path="/library/favorites" element={<Favorites />} />
         <Route path="/player" element={<PlayerView />} />
         <Route path="/auth" element={<Auth />} />

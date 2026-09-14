@@ -15,6 +15,11 @@ export const clearHistory = async () => {
   return data;
 };
 
+export const deleteHistorySong = async (songId) => {
+  const { data } = await api.delete(`/users/history/${encodeURIComponent(songId)}`);
+  return data;
+};
+
 export const getProfile = async () => {
   const { data } = await api.get("/users/me");
   return data;
