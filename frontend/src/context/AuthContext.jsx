@@ -48,7 +48,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("mw-user");
   };
 
-  const value = useMemo(() => ({ user, token, ready, login, logout }), [user, token, ready]);
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem("mw-user", JSON.stringify(updatedUser));
+  };
+
+  const value = useMemo(() => ({ user, token, ready, login, logout, updateUser }), [user, token, ready]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

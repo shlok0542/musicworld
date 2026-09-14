@@ -5,7 +5,7 @@ import { getProfile, updateProfile } from "../services/userService.js";
 import { useUI } from "../context/UIContext.jsx";
 
 const Profile = () => {
-  const { token, logout } = useAuth();
+  const { token, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const { showToast, startLoading, stopLoading } = useUI();
   const [profile, setProfile] = useState(null);
@@ -37,8 +37,8 @@ const Profile = () => {
         avatar: avatarPreview || avatar
       });
       setProfile(updated);
+      updateUser(updated);
       setEditing(false);
-      localStorage.setItem("mw-user", JSON.stringify(updated));
       showToast({ type: "success", message: "Profile updated." });
     } catch {
       showToast({ type: "error", message: "Failed to update profile." });
