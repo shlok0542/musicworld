@@ -27,19 +27,35 @@ const sectionConfig = [
   { title: "Album Radar", query: "Evolve", type: "album" }
 ];
 
+const HOME_CACHE_KEY = "mw-home-sections-v1";
+const HOME_CACHE_TTL = 5 * 60 * 1000;
+
+const getCachedSections = () => {
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(HOME_CACHE_KEY) || "null");
+    if (!cached || Date.now() - cached.timestamp > HOME_CACHE_TTL) return null;
+    return cached.sections;
+  } catch {
+    return null;
+  }
+};
+
+const createInitialSections = () => {
+  const cachedSections = getCachedSections();
+  return sectionConfig.map((section, index) => ({
+    ...section,
+    items: cachedSections?.[index]?.items || [],
+    page: cachedSections?.[index]?.page || 1,
+    loading: !cachedSections?.[index],
+    loadingMore: false,
+    unavailable: false
+  }));
+};
+
 const Home = () => {
   const navigate = useNavigate();
   const hasLoadedRef = React.useRef(false);
-  const [sections, setSections] = React.useState(() =>
-    sectionConfig.map((section) => ({
-      ...section,
-      items: [],
-      page: 1,
-      loading: true,
-      loadingMore: false,
-      unavailable: false
-    }))
-  );
+  const [sections, setSections] = React.useState(createInitialSections);
 
   const loadSection = async (index, page, replace = false) => {
     setSections((prev) =>
@@ -81,6 +97,32 @@ const Home = () => {
             : item
         )
       );
+      if (replace && page === 1) {
+        try {
+          const nextSections = getCachedSections() || sectionConfig.map((section) => ({
+            ...section,
+            items: [],
+            page: 1,
+            loading: false,
+            loadingMore: false,
+            unavailable: false
+          }));
+          nextSections[index] = {
+            ...nextSections[index],
+            items: normalized,
+            page: 1,
+            loading: false,
+            loadingMore: false,
+            unavailable: false
+          };
+          sessionStorage.setItem(
+            HOME_CACHE_KEY,
+            JSON.stringify({ timestamp: Date.now(), sections: nextSections })
+          );
+        } catch {
+          undefined;
+        }
+      }
     } catch {
       setSections((prev) =>
         prev.map((item, idx) =>
@@ -94,9 +136,14 @@ const Home = () => {
     if (hasLoadedRef.current) return;
     hasLoadedRef.current = true;
 
-    sectionConfig.forEach((_, index) => {
-      loadSection(index, 1, true);
-    });
+    const cachedSections = getCachedSections();
+    const loadInitialSections = async () => {
+      if (cachedSections) return;
+      for (let index = 0; index < sectionConfig.length; index += 1) {
+        await loadSection(index, 1, true);
+      }
+    };
+    loadInitialSections();
   }, []);
 
   const heroSongs = React.useMemo(() => sections[0]?.items?.slice(0, 2) || [], [sections]);

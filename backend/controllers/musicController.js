@@ -27,7 +27,8 @@ const normalizeSong = (item) => ({
     : "",
   image: pickImage(item.image),
   duration: Number(item.duration || 0),
-  url: pickAudio(item.downloadUrl)
+  url: pickAudio(item.downloadUrl),
+  downloads: Array.isArray(item.downloadUrl) ? item.downloadUrl : []
 });
 
 const unwrapResults = (data) => {

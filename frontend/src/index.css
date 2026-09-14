@@ -216,6 +216,19 @@ body {
   color: rgba(15, 23, 42, 0.45);
 }
 
+:root[data-theme="light"] .navbar-shell {
+  background: linear-gradient(110deg, rgba(245, 240, 255, 0.94), rgba(233, 213, 255, 0.94) 52%, rgba(252, 231, 243, 0.94)) !important;
+  border-bottom-color: rgba(123, 47, 247, 0.14) !important;
+}
+
+:root[data-theme="light"] .navbar-shell.bg-transparent {
+  background: linear-gradient(110deg, rgba(245, 240, 255, 0.86), rgba(233, 213, 255, 0.86) 52%, rgba(252, 231, 243, 0.86)) !important;
+}
+
+:root[data-theme="light"] .navbar-shell.bg-\[\#0b0a12\]\/55 {
+  box-shadow: 0 8px 30px rgba(123, 47, 247, 0.14) !important;
+}
+
 :root[data-theme="light"] .auth-tabs {
   background: rgba(255, 255, 255, 0.9) !important;
   border-color: rgba(15, 23, 42, 0.12) !important;

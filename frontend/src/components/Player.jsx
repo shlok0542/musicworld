@@ -70,11 +70,20 @@ const Player = () => {
   useEffect(() => {
     if (!currentTrack || !audioRef.current) return;
     const desiredQuality = dataSaver ? "64kbps" : quality;
-    const source =
-      currentTrack.downloads?.find((d) => d.quality === desiredQuality)?.url ||
-      currentTrack.url ||
-      "";
+    const downloads = Array.isArray(currentTrack.downloads) ? currentTrack.downloads : [];
+    const selectedDownload = downloads.find((download) => download.quality === desiredQuality);
+    const lowestDownload = downloads
+      .filter((download) => download?.url)
+      .sort((first, second) => Number.parseInt(first.quality, 10) - Number.parseInt(second.quality, 10))[0];
+    const source = selectedDownload?.url || lowestDownload?.url || currentTrack.url || "";
+    const previousTime = audioRef.current.currentTime || 0;
     audioRef.current.src = source;
+    audioRef.current.addEventListener("loadedmetadata", () => {
+      if (previousTime > 0 && Number.isFinite(audioRef.current.duration)) {
+        audioRef.current.currentTime = Math.min(previousTime, audioRef.current.duration);
+        setProgress(audioRef.current.currentTime);
+      }
+    }, { once: true });
     audioRef.current.load();
     setProgress(0);
     setDuration(0);

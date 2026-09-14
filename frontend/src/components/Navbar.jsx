@@ -235,7 +235,7 @@ const Navbar = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 relative flex items-center gap-3 px-4 py-4 sm:px-6 lg:px-10 transition-all duration-300 ${
+      className={`navbar-shell sticky top-0 z-50 relative flex items-center gap-3 px-4 py-4 sm:px-6 lg:px-10 transition-all duration-300 ${
         isScrolled
           ? "bg-[#0b0a12]/55 backdrop-blur-xl border-b border-white/10 shadow-[0_8px_30px_rgba(7,4,14,0.22)]"
           : "bg-transparent border-b border-transparent"

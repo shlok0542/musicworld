@@ -34,7 +34,7 @@ export const normalizeSong = (item) => ({
   image: pickImage(item.image || item.song_image),
   duration: Number(item.duration || item.song_duration || 0),
   url: pickAudio(item.downloadUrl || item.download_links, item.url),
-  downloads: item.downloadUrl || item.download_links || []
+  downloads: item.downloads || item.downloadUrl || item.download_links || []
 });
 
 export const normalizeAlbum = (item) => ({

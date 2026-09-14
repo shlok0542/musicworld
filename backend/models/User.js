@@ -7,7 +7,11 @@ const SongSchema = new mongoose.Schema(
     artist: { type: String, default: "" },
     image: { type: String, default: "" },
     duration: { type: Number, default: 0 },
-    url: { type: String, default: "" }
+    url: { type: String, default: "" },
+    downloads: {
+      type: [{ quality: { type: String }, url: { type: String } }],
+      default: []
+    }
   },
   { _id: false }
 );
