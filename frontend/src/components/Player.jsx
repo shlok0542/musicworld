@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { usePlayer } from "../context/PlayerContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useUI } from "../context/UIContext.jsx";
@@ -57,6 +58,8 @@ const Player = () => {
   } = usePlayer();
   const { token } = useAuth();
   const { showToast } = useUI();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [muted, setMuted] = useState(false);
   const [playlists, setPlaylists] = useState([]);
@@ -113,7 +116,10 @@ const Player = () => {
 
   const onLoaded = () => {
     if (!audioRef.current) return;
-    setDuration(audioRef.current.duration || 0);
+    const nextDuration = audioRef.current.duration;
+    if (Number.isFinite(nextDuration)) {
+      setDuration(nextDuration);
+    }
   };
 
   const onEnded = async () => {
@@ -226,10 +232,101 @@ const Player = () => {
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40">
-      <div className="glass border-t border-white/10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-3">
-          <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1.6fr_1.2fr] gap-3 md:gap-4 items-center">
+    <>
+      <div className={location.pathname === "/player" ? "hidden" : "fixed inset-x-0 bottom-0 z-40"}>
+        <div className="glass border-t border-white/10">
+          <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-10 py-2 md:py-3">
+          <div
+            className="flex cursor-pointer items-center gap-3 md:hidden"
+            role="button"
+            tabIndex={0}
+            aria-label="Open full player"
+            onClick={() => navigate("/player")}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                navigate("/player");
+              }
+            }}
+          >
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-white/15 bg-white/5">
+              <img src={cover} alt="cover" className="h-full w-full object-cover" />
+              <div className="absolute inset-0 opacity-20" style={shimmer} />
+            </div>
+            <div className="min-w-0 flex-1 self-stretch flex flex-col justify-center">
+              <p className="truncate text-sm font-semibold text-white">
+                {currentTrack?.title || "Pick a track"}
+              </p>
+              <p className="truncate text-xs text-white/60">
+                {currentTrack?.artist || "Let the vibe guide you"}
+              </p>
+              <div
+                className="mt-1 flex items-center gap-2"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <span className="w-7 shrink-0 text-[9px] text-white/50">{formatTime(progress)}</span>
+                <input
+                  type="range"
+                  min="0"
+                  max={duration || 0}
+                  step="0.1"
+                  value={progress}
+                  onChange={onSeek}
+                  onInput={onSeek}
+                  aria-label="Seek track"
+                  className="min-w-0 flex-1 accent-emerald-400"
+                />
+                <span className="w-7 shrink-0 text-right text-[9px] text-white/50">{formatTime(duration)}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              aria-label="Previous"
+              onClick={(event) => {
+                event.stopPropagation();
+                handlePrev();
+              }}
+              className="flex h-10 w-7 shrink-0 items-center justify-center text-white/80 transition hover:text-white"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+                <path d="M6 5h2v14H6zM18.5 5l-9.5 7 9.5 7V5z" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              aria-label={isPlaying ? "Pause" : "Play"}
+              onClick={(event) => {
+                event.stopPropagation();
+                togglePlay();
+              }}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-400 text-white shadow-glow"
+            >
+              {isPlaying ? (
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+                  <path d="M6 5h4v14H6zM14 5h4v14h-4z" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+                  <path d="M7 5v14l12-7z" />
+                </svg>
+              )}
+            </button>
+            <button
+              type="button"
+              aria-label="Next"
+              onClick={(event) => {
+                event.stopPropagation();
+                handleNext();
+              }}
+              className="flex h-10 w-10 shrink-0 items-center justify-center text-white/80 transition hover:text-white"
+            >
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
+                <path d="M16 5h2v14h-2zM5.5 5l9.5 7-9.5 7V5z" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="hidden md:grid md:grid-cols-[1.2fr_1.6fr_1.2fr] gap-3 md:gap-4 items-center">
             <div className="flex items-center md:items-center justify-center md:justify-start gap-3">
               <div className="relative">
                 <img
@@ -329,7 +426,7 @@ const Player = () => {
                   <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
                 </svg>
               </IconButton>
-              <div className="relative">
+              <div className="relative hidden md:block">
                 <IconButton label="Add to playlist" onClick={handleOpenAdd}>
                   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 5v14M5 12h14" />
@@ -352,35 +449,40 @@ const Player = () => {
                   </div>
                 )}
               </div>
-              <IconButton label={muted ? "Unmute" : "Mute"} onClick={() => setMuted((prev) => !prev)} active={muted}>
-                {muted ? (
-                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-                    <path d="M16.5 12L19 14.5 17.5 16l-2.5-2.5-2.5 2.5L11 14.5 13.5 12 11 9.5 12.5 8l2.5 2.5L17.5 8 19 9.5z" />
-                    <path d="M11 5L6 9H3v6h3l5 4V5z" />
-                  </svg>
-                ) : (
-                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-                    <path d="M11 5L6 9H3v6h3l5 4V5z" />
-                    <path d="M15 9a4 4 0 0 1 0 6" stroke="currentColor" strokeWidth="2" fill="none" />
-                  </svg>
-                )}
-              </IconButton>
-              <div className="text-[10px] text-white/40 uppercase tracking-[0.3em]">
+              <div className="hidden md:block">
+                <IconButton label={muted ? "Unmute" : "Mute"} onClick={() => setMuted((prev) => !prev)} active={muted}>
+                  {muted ? (
+                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+                      <path d="M16.5 12L19 14.5 17.5 16l-2.5-2.5 2.5-2.5L11 14.5 13.5 12 11 9.5 12.5 8l2.5 2.5L17.5 8 19 9.5z" />
+                      <path d="M11 5L6 9H3v6h3l5 4V5z" />
+                    </svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+                      <path d="M11 5L6 9H3v6h3l5 4V5z" />
+                      <path d="M15 9a4 4 0 0 1 0 6" stroke="currentColor" strokeWidth="2" fill="none" />
+                    </svg>
+                  )}
+                </IconButton>
+              </div>
+              <div className="hidden text-[10px] text-white/40 uppercase tracking-[0.3em] md:block">
                 Queue {queue.length}
               </div>
             </div>
           </div>
 
-          <audio
-            ref={audioRef}
-            preload="metadata"
-            onTimeUpdate={onTimeUpdate}
-            onLoadedMetadata={onLoaded}
-            onEnded={onEnded}
-          />
+          </div>
         </div>
       </div>
-    </div>
+      <audio
+        ref={audioRef}
+        preload="metadata"
+        onTimeUpdate={onTimeUpdate}
+        onLoadedMetadata={onLoaded}
+        onDurationChange={onLoaded}
+        onCanPlay={onLoaded}
+        onEnded={onEnded}
+      />
+    </>
   );
 };
 

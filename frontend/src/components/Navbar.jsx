@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { usePlayer } from "../context/PlayerContext.jsx";
@@ -116,6 +116,7 @@ const MenuPanel = ({ onClose, isLoggedIn, onLogin, onLogout, onAccount, open }) 
 const Navbar = () => {
   const { user, token, logout } = useAuth();
   const { setCurrentTrack } = usePlayer();
+  const location = useLocation();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
@@ -150,6 +151,10 @@ const Navbar = () => {
     window.addEventListener("scroll", updateNavbar, { passive: true });
     return () => window.removeEventListener("scroll", updateNavbar);
   }, []);
+
+  React.useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   const handleSearch = (event) => {
     event.preventDefault();
