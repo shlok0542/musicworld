@@ -33,21 +33,6 @@ const Playlists = () => {
           </div>
         </button>
 
-        <button
-          type="button"
-          onClick={() => navigate("/library/playlists")}
-          className="glass rounded-3xl p-5 flex items-center gap-4 text-left hover:border-white/20 border border-white/10"
-        >
-          <div className="h-12 w-12 rounded-2xl bg-emerald-400/20 text-emerald-200 flex items-center justify-center">
-            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 6h16M4 12h16M4 18h10" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-sm text-white/60">Library</p>
-            <h3 className="text-lg font-semibold">Playlists</h3>
-          </div>
-        </button>
       </div>
     </div>
   );

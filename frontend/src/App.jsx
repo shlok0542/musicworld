@@ -9,7 +9,6 @@ import WelcomePrompt from "./components/WelcomePrompt.jsx";
 import Home from "./pages/Home.jsx";
 import Playlists from "./pages/Playlists.jsx";
 import Favorites from "./pages/Favorites.jsx";
-import LibraryPlaylists from "./pages/LibraryPlaylists.jsx";
 import PlayerView from "./pages/PlayerView.jsx";
 import Auth from "./pages/Auth.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -26,7 +25,6 @@ const App = () => (
         <Route path="/" element={<Home />} />
         <Route path="/playlists" element={<Playlists />} />
         <Route path="/library/favorites" element={<Favorites />} />
-        <Route path="/library/playlists" element={<LibraryPlaylists />} />
         <Route path="/player" element={<PlayerView />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/profile" element={<Profile />} />

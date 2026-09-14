@@ -14,6 +14,7 @@ const MenuPanel = ({ onClose, isLoggedIn, onLogin, onLogout, onAccount, open }) 
         : "pointer-events-none -translate-y-2 scale-95 opacity-0"
     }`}
     aria-hidden={!open}
+    inert={!open ? "" : undefined}
   >
     <div className="flex items-center self-end justify-end">
       <button
@@ -28,7 +29,7 @@ const MenuPanel = ({ onClose, isLoggedIn, onLogin, onLogout, onAccount, open }) 
     <div className="space-y-2">
       {isLoggedIn ? (
         <>
-          <NavLink to="/" className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
+          <NavLink to="/" onClick={onClose} className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
             <span className="inline-flex items-center gap-2">
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 10.5L12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1v-10.5z" />
@@ -49,7 +50,7 @@ const MenuPanel = ({ onClose, isLoggedIn, onLogin, onLogout, onAccount, open }) 
               Account
             </span>
           </button>
-          <NavLink to="/playlists" className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
+          <NavLink to="/playlists" onClick={onClose} className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
             <span className="inline-flex items-center gap-2">
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 6h16M4 12h16M4 18h10" />
@@ -57,7 +58,7 @@ const MenuPanel = ({ onClose, isLoggedIn, onLogin, onLogout, onAccount, open }) 
               Library
             </span>
           </NavLink>
-          <NavLink to="/history" className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
+          <NavLink to="/history" onClick={onClose} className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
             <span className="inline-flex items-center gap-2">
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 12a9 9 0 1 0 3-6.7" />
@@ -67,7 +68,7 @@ const MenuPanel = ({ onClose, isLoggedIn, onLogin, onLogout, onAccount, open }) 
               History
             </span>
           </NavLink>
-          <NavLink to="/settings" className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
+          <NavLink to="/settings" onClick={onClose} className="block rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/10">
             <span className="inline-flex items-center gap-2">
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z" />
@@ -126,14 +127,27 @@ const Navbar = () => {
   const [mobileSearchOpen, setMobileSearchOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
   const menuRef = React.useRef(null);
+  const menuTriggerRef = React.useRef(null);
   const searchCacheRef = React.useRef(new Map());
   const isLoggedIn = Boolean(user && token);
+
+  const closeMenu = (restoreFocus = true) => {
+    const focusIsInsideMenu = menuRef.current?.contains(document.activeElement);
+    if (focusIsInsideMenu) {
+      if (restoreFocus) {
+        menuTriggerRef.current?.focus();
+      } else {
+        document.activeElement.blur();
+      }
+    }
+    setMenuOpen(false);
+  };
 
   React.useEffect(() => {
     const handleClick = (event) => {
       if (!menuRef.current) return;
       if (!menuRef.current.contains(event.target)) {
-        setMenuOpen(false);
+        closeMenu(false);
       }
     };
     if (menuOpen) {
@@ -153,7 +167,7 @@ const Navbar = () => {
   }, []);
 
   React.useEffect(() => {
-    setMenuOpen(false);
+    closeMenu();
   }, [location.pathname]);
 
   const handleSearch = (event) => {
@@ -309,6 +323,7 @@ const Navbar = () => {
           <button
             type="button"
             onClick={handleProfile}
+            ref={menuTriggerRef}
             className="h-10 w-10 rounded-full border border-white/10 bg-white/5 overflow-hidden flex items-center justify-center text-white/70 hover:text-white"
             aria-label={isLoggedIn ? "Open account menu" : "Profile"}
             aria-expanded={isLoggedIn ? menuOpen : undefined}
@@ -325,19 +340,19 @@ const Navbar = () => {
           {isLoggedIn && (
             <MenuPanel
               open={menuOpen}
-              onClose={() => setMenuOpen(false)}
+              onClose={closeMenu}
               isLoggedIn={isLoggedIn}
               onLogin={() => {
-                setMenuOpen(false);
+                closeMenu();
                 navigate("/auth");
               }}
               onAccount={() => {
-                setMenuOpen(false);
+                closeMenu();
                 navigate("/profile");
               }}
               onLogout={() => {
                 logout();
-                setMenuOpen(false);
+                closeMenu();
                 navigate("/");
               }}
             />
