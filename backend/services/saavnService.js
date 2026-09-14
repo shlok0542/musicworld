@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = process.env.SAAVN_BASE_URL || "https://saavn.sumit.co";
+const BASE_URL = process.env.SAAVN_BASE_URL;
 
 export const searchSongs = async (query, page = 1) => {
   const url = `${BASE_URL}/api/search/songs`;

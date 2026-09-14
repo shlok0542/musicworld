@@ -1,7 +1,7 @@
 import api from "./api";
 
-export const searchSongs = async (query, page = 1) => {
-  const { data } = await api.get(`/search?q=${encodeURIComponent(query)}&page=${page}`);
+export const searchSongs = async (query, page = 1, config = {}) => {
+  const { data } = await api.get(`/search?q=${encodeURIComponent(query)}&page=${page}`, config);
   return data;
 };
 
