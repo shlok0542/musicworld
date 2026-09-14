@@ -60,6 +60,117 @@ body {
   box-shadow: var(--glow);
 }
 
+.home-page {
+  min-width: 0;
+}
+
+.mood-row,
+.shelf-track {
+  display: flex;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.mood-row::-webkit-scrollbar,
+.shelf-track::-webkit-scrollbar {
+  display: none;
+}
+
+.shelf-track {
+  gap: 1rem;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-inline: contain;
+  padding: 0.15rem 0.1rem 0.75rem;
+}
+
+.shelf-track > * {
+  flex: 0 0 10.5rem;
+  scroll-snap-align: start;
+}
+
+.quick-picks {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.5rem;
+  max-width: 58rem;
+}
+
+.quick-pick {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.9rem;
+  padding: 0.35rem;
+  text-align: left;
+  transition: background-color 180ms ease, transform 180ms ease;
+}
+
+.quick-pick:hover {
+  background: rgba(255, 255, 255, 0.07);
+  transform: translateY(-1px);
+}
+
+.quick-pick-skeleton {
+  height: 4.25rem;
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.07);
+  animation: home-pulse 1.5s ease-in-out infinite;
+}
+
+.home-skeleton {
+  flex: 0 0 10.5rem;
+  border-radius: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.shelf-arrow {
+  display: inline-flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  color: var(--text-muted);
+  transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease;
+}
+
+.shelf-arrow:hover {
+  border-color: rgba(168, 117, 255, 0.65);
+  background: rgba(123, 47, 247, 0.12);
+  color: var(--text-primary);
+}
+
+@keyframes home-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@media (min-width: 640px) {
+  .quick-picks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .shelf-track > *,
+  .home-skeleton {
+    flex-basis: 12rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .quick-picks {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .shelf-track > *,
+  .home-skeleton {
+    flex-basis: 13rem;
+  }
+}
+
 /* Signature violet-to-magenta theme. These overrides also map existing
    Tailwind utility classes so the palette stays consistent across every view. */
 [class~="bg-emerald-400"] {

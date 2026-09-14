@@ -12,9 +12,17 @@ const createToken = (user) => {
 
 export const signup = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const name = typeof req.body.name === "string" ? req.body.name.trim() : "";
+    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : "";
+    const password = typeof req.body.password === "string" ? req.body.password : "";
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
+    }
+    if (name.length > 80 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ message: "Enter a valid name and email address" });
+    }
+    if (password.length < 8 || password.length > 128) {
+      return res.status(400).json({ message: "Password must be 8 to 128 characters" });
     }
 
     const exists = await User.findOne({ email });
@@ -43,7 +51,8 @@ export const signup = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : "";
+    const password = typeof req.body.password === "string" ? req.body.password : "";
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password required" });
     }

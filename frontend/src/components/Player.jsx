@@ -66,6 +66,7 @@ const Player = () => {
   const [showAdd, setShowAdd] = useState(false);
   const [loadingRelated, setLoadingRelated] = useState(false);
   const [radioLabel, setRadioLabel] = useState("");
+  const loadedTrackIdRef = React.useRef(null);
 
   useEffect(() => {
     if (!currentTrack || !audioRef.current) return;
@@ -76,7 +77,9 @@ const Player = () => {
       .filter((download) => download?.url)
       .sort((first, second) => Number.parseInt(first.quality, 10) - Number.parseInt(second.quality, 10))[0];
     const source = selectedDownload?.url || lowestDownload?.url || currentTrack.url || "";
-    const previousTime = audioRef.current.currentTime || 0;
+    const isSameTrack = loadedTrackIdRef.current === currentTrack.songId;
+    const previousTime = isSameTrack ? audioRef.current.currentTime || 0 : 0;
+    loadedTrackIdRef.current = currentTrack.songId;
     audioRef.current.src = source;
     audioRef.current.addEventListener("loadedmetadata", () => {
       if (previousTime > 0 && Number.isFinite(audioRef.current.duration)) {
@@ -85,6 +88,7 @@ const Player = () => {
       }
     }, { once: true });
     audioRef.current.load();
+    if (!isSameTrack) audioRef.current.currentTime = 0;
     setProgress(0);
     setDuration(0);
     if (isPlaying) {

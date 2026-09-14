@@ -11,10 +11,20 @@ export const getProfile = async (req, res, next) => {
 
 export const updateProfile = async (req, res, next) => {
   try {
-    const { name, avatar, settings } = req.body;
+    const name = typeof req.body.name === "string" ? req.body.name.trim() : "";
+    const avatar = typeof req.body.avatar === "string" ? req.body.avatar.trim() : "";
+    const { settings } = req.body;
     const update = {};
-    if (typeof name === "string" && name.trim()) update.name = name.trim();
-    if (typeof avatar === "string") update.avatar = avatar.trim();
+    if (name) {
+      if (name.length > 80) return res.status(400).json({ message: "Name must be 80 characters or fewer" });
+      update.name = name;
+    }
+    if (avatar) {
+      if (avatar.length > 900000 || !/^(https?:\/\/|data:image\/)/i.test(avatar)) {
+        return res.status(400).json({ message: "Profile image must be a valid URL or image" });
+      }
+      update.avatar = avatar;
+    }
     if (settings && typeof settings === "object") {
       const nextSettings = {};
       if (typeof settings.theme === "string") nextSettings["settings.theme"] = settings.theme;

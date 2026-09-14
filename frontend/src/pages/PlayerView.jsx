@@ -1,4 +1,5 @@
 import React from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { usePlayer } from "../context/PlayerContext.jsx";
 
 const formatTime = (value) => {
@@ -38,6 +39,7 @@ const PlayerView = () => {
     next,
     prev
   } = usePlayer();
+  const [showAllQueue, setShowAllQueue] = React.useState(false);
 
   const cover = currentTrack?.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80&auto=format";
 
@@ -106,18 +108,32 @@ const PlayerView = () => {
 
         <div className="mt-14 flex items-center justify-between border-b border-white/10 pb-3 text-sm font-semibold">
           <span className="border-b-2 border-violet-400 pb-3 text-white">Up next</span>
-          <span className="text-white/45">Comments</span>
-          <span className="text-white/45">Related</span>
         </div>
 
-        <div className="mt-4 space-y-2">
-          {queue.slice(0, 3).map((song) => (
-            <button key={song.songId} onClick={() => setCurrentTrack(song, queue)} className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-white/5">
-              <img src={song.image} alt="" className="h-11 w-11 rounded-lg object-cover" />
-              <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{song.title}</span><span className="block truncate text-xs text-white/55">{song.artist}</span></span>
-            </button>
-          ))}
-        </div>
+        <motion.div layout className="mt-4 space-y-2">
+          <AnimatePresence initial={false}>
+            {queue.slice(0, showAllQueue ? queue.length : 10).map((song) => (
+              <motion.button
+                key={song.songId}
+                layout
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => setCurrentTrack(song, queue)}
+                className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-white/5"
+              >
+                <img src={song.image} alt="" className="h-11 w-11 rounded-lg object-cover" />
+                <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{song.title}</span><span className="block truncate text-xs text-white/55">{song.artist}</span></span>
+              </motion.button>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+        {queue.length > 10 && (
+          <button type="button" onClick={() => setShowAllQueue((previous) => !previous)} className="mt-3 text-sm font-semibold text-violet-300 hover:text-violet-200">
+            {showAllQueue ? "Show less" : `See more (${queue.length - 10})`}
+          </button>
+        )}
       </div>
 
       <div className="hidden min-h-[calc(100vh-5rem)] px-8 pb-24 pt-8 md:block">
@@ -164,17 +180,31 @@ const PlayerView = () => {
 
           <div className="mt-14 flex max-w-xl items-center justify-between border-b border-white/10 pb-3 text-sm font-semibold">
             <span className="border-b-2 border-violet-400 pb-3 text-white">Up next</span>
-            <span className="text-white/45">Comments</span>
-            <span className="text-white/45">Related</span>
           </div>
-          <div className="mt-4 max-w-xl space-y-2">
-            {queue.slice(0, 4).map((song) => (
-              <button key={song.songId} onClick={() => setCurrentTrack(song, queue)} className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-white/5">
-                <img src={song.image} alt="" className="h-11 w-11 rounded-lg object-cover" />
-                <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{song.title}</span><span className="block truncate text-xs text-white/55">{song.artist}</span></span>
-              </button>
-            ))}
-          </div>
+          <motion.div layout className="mt-4 max-w-xl space-y-2">
+            <AnimatePresence initial={false}>
+              {queue.slice(0, showAllQueue ? queue.length : 10).map((song) => (
+                <motion.button
+                  key={song.songId}
+                  layout
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => setCurrentTrack(song, queue)}
+                  className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-white/5"
+                >
+                  <img src={song.image} alt="" className="h-11 w-11 rounded-lg object-cover" />
+                  <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{song.title}</span><span className="block truncate text-xs text-white/55">{song.artist}</span></span>
+                </motion.button>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+          {queue.length > 10 && (
+            <button type="button" onClick={() => setShowAllQueue((previous) => !previous)} className="mt-3 text-sm font-semibold text-violet-300 hover:text-violet-200">
+              {showAllQueue ? "Show less" : `See more (${queue.length - 10})`}
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -2,9 +2,12 @@
 
 export const createPlaylist = async (req, res, next) => {
   try {
-    const { name } = req.body;
+    const name = typeof req.body.name === "string" ? req.body.name.trim() : "";
     if (!name) {
       return res.status(400).json({ message: "Playlist name required" });
+    }
+    if (name.length > 100) {
+      return res.status(400).json({ message: "Playlist name must be 100 characters or fewer" });
     }
     const playlist = await Playlist.create({
       name,
